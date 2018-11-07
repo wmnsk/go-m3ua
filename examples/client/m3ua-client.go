@@ -53,7 +53,7 @@ func main() {
 		0, // MessagePriority
 		1, // SignalingLinkSelection
 	)
-	// set nil on unnecessary paramters.
+	// set nil on unnecessary parameters.
 	config.CorrelationID = nil
 
 	// setup SCTP peer on the specified IPs and Port.

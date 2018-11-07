@@ -36,7 +36,7 @@ func setupConn(ctx context.Context) (*Conn, *Conn, error) {
 		0, // MessagePriority
 		1, // SignalingLinkSelection
 	)
-	// set nil on unnecessary paramters.
+	// set nil on unnecessary parameters.
 	srvCfg.AspIdentifier = nil
 	srvCfg.CorrelationID = nil
 
@@ -74,7 +74,7 @@ func setupConn(ctx context.Context) (*Conn, *Conn, error) {
 		0, // MessagePriority
 		1, // SignalingLinkSelection
 	)
-	// set nil on unnecessary paramters.
+	// set nil on unnecessary parameters.
 	cliCfg.CorrelationID = nil
 
 	laddr, err := sctp.ResolveSCTPAddr("sctp", "127.0.0.1:2905")

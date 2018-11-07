@@ -73,7 +73,6 @@ func (n *Notify) SerializeTo(b []byte) error {
 		if err := n.InfoString.SerializeTo(n.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += n.InfoString.Len()
 	}
 
 	return n.Header.SerializeTo(b)

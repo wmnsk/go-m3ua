@@ -76,7 +76,7 @@ func main() {
 		0, // MessagePriority
 		1, // SignalingLinkSelection
 	)
-	// set nil on unnecessary paramters.
+	// set nil on unnecessary parameters.
 	config.AspIdentifier = nil
 	config.CorrelationID = nil
 

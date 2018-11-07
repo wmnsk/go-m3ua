@@ -64,7 +64,6 @@ func (a *AspUpAck) SerializeTo(b []byte) error {
 		if err := a.InfoString.SerializeTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += a.InfoString.Len()
 	}
 
 	return a.Header.SerializeTo(b)

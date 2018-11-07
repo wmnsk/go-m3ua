@@ -104,6 +104,9 @@ func Decode(b []byte) (M3UA, error) {
 		return nil, ErrTooShortToDecode
 	}
 	var m M3UA
+	combine := func(c, t uint8) uint16 {
+		return uint16(c<<4 | t)
+	}
 	t := combine(b[2], b[3])
 
 	switch t {
@@ -150,11 +153,6 @@ func Decode(b []byte) (M3UA, error) {
 		return nil, errors.Wrap(err, "failed to decode M3UA")
 	}
 	return m, nil
-}
-
-// combine combines Message Class and Message Type.
-func combine(c, t uint8) uint16 {
-	return uint16(c<<4 | t)
 }
 
 // Error definitions.

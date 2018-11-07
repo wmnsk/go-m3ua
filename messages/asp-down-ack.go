@@ -51,12 +51,10 @@ func (a *AspDownAck) SerializeTo(b []byte) error {
 
 	a.Header.Payload = make([]byte, a.Len()-8)
 
-	var offset = 0
 	if a.InfoString != nil {
-		if err := a.InfoString.SerializeTo(a.Header.Payload[offset:]); err != nil {
+		if err := a.InfoString.SerializeTo(a.Header.Payload); err != nil {
 			return err
 		}
-		offset += a.InfoString.Len()
 	}
 
 	return a.Header.SerializeTo(b)

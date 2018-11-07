@@ -51,12 +51,10 @@ func (h *HeartbeatAck) SerializeTo(b []byte) error {
 
 	h.Header.Payload = make([]byte, h.Len()-8)
 
-	var offset = 0
 	if h.HeartbeatData != nil {
-		if err := h.HeartbeatData.SerializeTo(h.Header.Payload[offset:]); err != nil {
+		if err := h.HeartbeatData.SerializeTo(h.Header.Payload); err != nil {
 			return err
 		}
-		offset += h.HeartbeatData.Len()
 	}
 
 	return h.Header.SerializeTo(b)

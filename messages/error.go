@@ -59,7 +59,6 @@ func (e *Error) SerializeTo(b []byte) error {
 	e.Header.Payload = make([]byte, e.Len()-8)
 
 	var offset = 0
-
 	if e.ErrorCode != nil {
 		if err := e.ErrorCode.SerializeTo(e.Header.Payload[offset:]); err != nil {
 			return err
@@ -92,7 +91,6 @@ func (e *Error) SerializeTo(b []byte) error {
 		if err := e.DiagnosticInformation.SerializeTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += e.DiagnosticInformation.Len()
 	}
 
 	return e.Header.SerializeTo(b)
