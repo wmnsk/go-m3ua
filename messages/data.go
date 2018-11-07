@@ -77,8 +77,9 @@ func (d *Data) SerializeTo(b []byte) error {
 		}
 		offset += d.ProtocolData.Len()
 	}
+
 	if d.CorrelationID != nil {
-		if err := d.CorrelationID.SerializeTo(d.Header.Payload); err != nil {
+		if err := d.CorrelationID.SerializeTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}

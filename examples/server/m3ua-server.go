@@ -26,7 +26,7 @@ func serve(conn *m3ua.Conn) {
 			conn.Close()
 			return
 		}
-		log.Printf("Recovered from crash occured on connection with: %s", conn.RemoteAddr())
+		log.Printf("Recovered from crash occurred on connection with: %s", conn.RemoteAddr())
 	}()
 
 	buf := make([]byte, 1500)
