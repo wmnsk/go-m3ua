@@ -23,7 +23,7 @@ go get -u github.com/wmnsk/go-m3ua
 
 _*Non-Linux machine is NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
 
-### Running Examples
+### Running examples as it is
 
 Working examples are available in [examples directory](./examples/).
 
@@ -32,7 +32,7 @@ cd go-m3ua/examples/client
 go run m3ua-client.go --addr <dst-IP:dst-port>
 ```
 
-### Using Package
+### Write your own code
 
 The API design is kept as similar as possible to other protocols in standard `net` package. To establish M3UA connection as client/server, you can use `Dial()` and `Listen()`/`Accept()` without caring about the underlying SCTP association, as go-m3ua handles it together with M3UA ASPSM & ASPTM procedures.
 
@@ -67,10 +67,10 @@ Then, prepare network addresses and context and try to connect with `Dial()`.
 
 ```go
 // setup SCTP peer on the specified IPs and Port.
-raddr := sctp.ResolveSCTPAddr("sctp", SERVER_IPS)
-    if err != nil {
-        log.Fatal(err)
-    }
+raddr, err := sctp.ResolveSCTPAddr("sctp", SERVER_IPS)
+if err != nil {
+    log.Fatal(err)
+}
 
 ctx := context.Background()
 ctx, cancel := context.WithCancel(ctx)
@@ -83,7 +83,7 @@ if err != nil {
 defer conn.Close()
 ```
 
-Now you can `Read()`/`Write()` data from/to the remote endpoint.
+Now you can `Read()` / `Write()` data from/to the remote endpoint.
 
 ```go
 if _, err := conn.Write(d); err != nil {
