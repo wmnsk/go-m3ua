@@ -27,7 +27,10 @@ func (c *Conn) heartbeat(ctx context.Context) {
 	data := make([]byte, 128)
 	beat := messages.NewHeartbeat(params.NewHeartbeatData(data))
 	for {
-		rand.Read(data)
+		if _, err := rand.Read(data); err != nil {
+			c.errChan <- err
+			return
+		}
 		beat.HeartbeatData = params.NewHeartbeatData(data)
 		if _, err := c.WriteSignal(beat); err != nil {
 			c.errChan <- ErrFailedToWriteSignal

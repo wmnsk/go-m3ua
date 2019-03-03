@@ -72,12 +72,6 @@ type Conn struct {
 	sctpInfo *sctp.SndRcvInfo
 	// cfg is a configuration that is required to communicate between M3UA endpoints
 	cfg *Config
-	// readDeadline is the deadline that makes Read() expired
-	readDeadline time.Duration
-	// writeDeadline is the deadline that makes Write() expired
-	writeDeadline time.Duration
-	// deadline is the deadline that makes Read()/Write() expired
-	deadline time.Duration
 }
 
 var netMap = map[string]string{
@@ -94,15 +88,14 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 	}
 	c.mu.Unlock()
 
-	select {
-	case pd, ok := <-c.dataChan:
-		if !ok {
-			return 0, ErrNotEstablished
-		}
-
-		copy(b, pd.Data)
-		return len(pd.Data), nil
+	pd, ok := <-c.dataChan
+	if !ok {
+		return 0, ErrNotEstablished
 	}
+
+	copy(b, pd.Data)
+	return len(pd.Data), nil
+
 }
 
 // Write writes data to the connection.

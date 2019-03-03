@@ -85,9 +85,7 @@ func (g *Generic) DecodeFromBytes(b []byte) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
-	for _, pr := range prs {
-		g.Params = append(g.Params, pr)
-	}
+	g.Params = append(g.Params, prs...)
 	return nil
 }
 

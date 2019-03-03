@@ -173,7 +173,6 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 	default:
 		c.errChan <- NewErrUnsupportedMessage(m3)
 	}
-	return
 }
 
 func (c *Conn) monitor(ctx context.Context) {

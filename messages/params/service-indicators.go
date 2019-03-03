@@ -16,5 +16,5 @@ func (p *Param) ServiceIndicators() []uint8 {
 		return nil
 	}
 
-	return p.decodeMultiUint8ValData()
+	return p.Data
 }

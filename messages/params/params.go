@@ -126,9 +126,7 @@ func newMultiUint8ValParam(t uint16, ux ...uint8) *Param {
 		Data: make([]byte, l),
 	}
 
-	for i, u := range ux {
-		p.Data[i] = u
-	}
+	copy(p.Data, ux)
 	p.SetLength()
 	return p
 }
@@ -174,14 +172,6 @@ func (p *Param) decodeMultiUint32ValData() []uint32 {
 	var us []uint32
 	for i := 0; i < l/4; i++ {
 		us = append(us, binary.BigEndian.Uint32(p.Data[i*4:(i+1)*4]))
-	}
-	return us
-}
-
-func (p *Param) decodeMultiUint8ValData() []uint8 {
-	var us []uint8
-	for _, d := range p.Data {
-		us = append(us, d)
 	}
 	return us
 }
