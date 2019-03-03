@@ -2,9 +2,9 @@
 
 Simple M3UA protocol implementation in pure Golang.
 
-[![CircleCI](https://circleci.com/gh/wmnsk/go-m3ua.svg?style=svg)](https://circleci.com/gh/wmnsk/go-m3ua)
+[![CircleCI](https://circleci.com/gh/wmnsk/go-m3ua.svg?style=shield)](https://circleci.com/gh/wmnsk/go-m3ua)
+[![GolangCI](https://golangci.com/badges/github.com/wmnsk/go-m3ua.svg)](https://golangci.com/r/github.com/wmnsk/go-m3ua)
 [![GoDoc](https://godoc.org/github.com/wmnsk/go-m3ua?status.svg)](https://godoc.org/github.com/wmnsk/go-m3ua)
-[![Go Report Card](https://goreportcard.com/badge/github.com/wmnsk/go-m3ua)](https://goreportcard.com/report/github.com/wmnsk/go-m3ua)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/wmnsk/go-m3ua/blob/master/LICENSE)
 
 ## Quickstart
