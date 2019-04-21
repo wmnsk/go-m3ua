@@ -78,7 +78,6 @@ type M3UA interface {
 	SerializeTo([]byte) error
 	DecodeFromBytes([]byte) error
 	Len() int
-	String() string
 	Version() uint8
 	MessageClass() uint8
 	MessageType() uint8
@@ -110,13 +109,12 @@ func Decode(b []byte) (M3UA, error) {
 	t := combine(b[2], b[3])
 
 	switch t {
-	/* XXX - Message Class Management has not been implemented.
-	case MsgTypeError:
-	case MsgTypeNotify:
-	*/
 	// Transfer Messages
 	case combine(MsgClassTransfer, MsgTypePayloadData):
 		m = &Data{}
+	// SSNM Messages
+	case combine(MsgClassSSNM, MsgTypeDestinationUnavailable):
+		m = &DestinationUnavailable{}
 	// ASPSM Messages
 	case combine(MsgClassASPSM, MsgTypeAspUp):
 		m = &AspUp{}
