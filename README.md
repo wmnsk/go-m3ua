@@ -21,18 +21,26 @@ go get -u github.com/pascaldekloe/goe/verify
 go get -u github.com/wmnsk/go-m3ua
 ```
 
+This project supports Go Modules. So you don't need to get dependent packages manually if you are using Go 1.11+.
+
 _*Non-Linux machine is NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
 
-### Running examples as it is
+### Trying Examples
 
 Working examples are available in [examples directory](./examples/).
+By executing the following commands, you can see the client and server is exchanging M3UA packets.
 
 ```shell-session
-cd go-m3ua/examples/client
-go run m3ua-client.go --addr <dst-IP:dst-port>
+# Run Server first
+cd examples/server
+go run m3ua-server.go
+
+// Run Client then
+cd examples/client
+go run m3ua-client.go
 ```
 
-### Write your own code
+### For Developers
 
 The API design is kept as similar as possible to other protocols in standard `net` package. To establish M3UA connection as client/server, you can use `Dial()` and `Listen()`/`Accept()` without caring about the underlying SCTP association, as go-m3ua handles it together with M3UA ASPSM & ASPTM procedures.
 

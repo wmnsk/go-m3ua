@@ -22,7 +22,7 @@ import (
 
 func main() {
 	var (
-		addr  = flag.String("aadr", "127.0.0.1:2905", "Source IP and Port listen.")
+		addr  = flag.String("aadr", "127.0.0.1:2905", "Remote IP and Port to connect to.")
 		data  = flag.String("data", "deadbeef", "Payload to send on M3UA in hex stream format.")
 		hbInt = flag.Duration("hb-interval", 0, "Interval for M3UA BEAT. Put 0 to disable")
 	)
@@ -41,17 +41,17 @@ func main() {
 			Interval: *hbInt,
 			Timer:    time.Duration(10 * time.Second),
 		},
-		0x11111111, // OriginatingPointCode
-		0x22222222, // DestinationPointCode
-		1,          // AspIdentifier
+		0x11111111,                  // OriginatingPointCode
+		0x22222222,                  // DestinationPointCode
+		1,                           // AspIdentifier
 		params.TrafficModeLoadshare, // TrafficModeType
-		0,                     // NetworkAppearance
-		0,                     // CorrelationID
-		[]uint32{1, 2},        // RoutingContexts
-		params.ServiceIndSCCP, // ServiceIndicator
-		0, // NetworkIndicator
-		0, // MessagePriority
-		1, // SignalingLinkSelection
+		0,                           // NetworkAppearance
+		0,                           // CorrelationID
+		[]uint32{1, 2},              // RoutingContexts
+		params.ServiceIndSCCP,       // ServiceIndicator
+		0,                           // NetworkIndicator
+		0,                           // MessagePriority
+		1,                           // SignalingLinkSelection
 	)
 	// set nil on unnecessary parameters.
 	config.CorrelationID = nil

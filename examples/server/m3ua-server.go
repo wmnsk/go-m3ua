@@ -64,17 +64,17 @@ func main() {
 			Interval: *hbInt,
 			Timer:    *hbTimer,
 		},
-		0x22222222, // OriginatingPointCode
-		0x11111111, // DestinationPointCode
-		1,          // AspIdentifier
+		0x22222222,                  // OriginatingPointCode
+		0x11111111,                  // DestinationPointCode
+		1,                           // AspIdentifier
 		params.TrafficModeLoadshare, // TrafficModeType
-		0,                     // NetworkAppearance
-		0,                     // CorrelationID
-		[]uint32{1, 2},        // RoutingContexts
-		params.ServiceIndSCCP, // ServiceIndicator
-		0, // NetworkIndicator
-		0, // MessagePriority
-		1, // SignalingLinkSelection
+		0,                           // NetworkAppearance
+		0,                           // CorrelationID
+		[]uint32{1, 2},              // RoutingContexts
+		params.ServiceIndSCCP,       // ServiceIndicator
+		0,                           // NetworkIndicator
+		0,                           // MessagePriority
+		1,                           // SignalingLinkSelection
 	)
 	// set nil on unnecessary parameters.
 	config.AspIdentifier = nil
