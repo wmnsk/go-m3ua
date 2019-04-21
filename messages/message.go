@@ -112,10 +112,12 @@ func Decode(b []byte) (M3UA, error) {
 	// Transfer Messages
 	case combine(MsgClassTransfer, MsgTypePayloadData):
 		m = &Data{}
-	// SSNM Messages
+		// SSNM Messages
 	case combine(MsgClassSSNM, MsgTypeDestinationUnavailable):
 		m = &DestinationUnavailable{}
-	// ASPSM Messages
+	case combine(MsgClassSSNM, MsgTypeDestinationAvailable):
+		m = &DestinationAvailable{}
+		// ASPSM Messages
 	case combine(MsgClassASPSM, MsgTypeAspUp):
 		m = &AspUp{}
 	case combine(MsgClassASPSM, MsgTypeAspDown):

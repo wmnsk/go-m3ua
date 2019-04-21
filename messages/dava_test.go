@@ -10,11 +10,11 @@ import (
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
-func TestDestinationUnavailable(t *testing.T) {
+func TestDestinationAvailable(t *testing.T) {
 	cases := []testCase{
 		{
 			"has-all",
-			NewDestinationUnavailable(
+			NewDestinationAvailable(
 				params.NewNetworkAppearance(1),
 				params.NewRoutingContext(2),
 				params.NewAffectedPointCode(3, 4),
@@ -22,7 +22,7 @@ func TestDestinationUnavailable(t *testing.T) {
 			),
 			[]byte{
 				// Header
-				0x01, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x38,
+				0x01, 0x00, 0x02, 0x02, 0x00, 0x00, 0x00, 0x38,
 				// NetworkAppearance
 				0x02, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01,
 				// RoutingContext
@@ -36,7 +36,7 @@ func TestDestinationUnavailable(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeDestinationUnavailable(b)
+		v, err := DecodeDestinationAvailable(b)
 		if err != nil {
 			return nil, err
 		}
