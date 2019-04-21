@@ -119,7 +119,7 @@ See [example/server directory](./examples/server) for server example.
 | Transfer | Payload Data Message (DATA)                     | Yes       | [RFC4666#3.3](https://tools.ietf.org/html/rfc4666#section-3.3) |
 | SSNM     | Destination Unavailable (DUNA)                  | Yes       | [RFC4666#3.4](https://tools.ietf.org/html/rfc4666#section-3.4) |
 |          | Destination Available (DAVA)                    | Yes       |                                                                |
-|          | Destination State Audit (DAUD)                  |           |                                                                |
+|          | Destination State Audit (DAUD)                  | Yes       |                                                                |
 |          | Signalling Congestion (SCON)                    |           |                                                                |
 |          | Destination User Part Unavailable (DUPU)        |           |                                                                |
 |          | Destination Restricted (DRST)                   |           |                                                                |

@@ -117,6 +117,8 @@ func Decode(b []byte) (M3UA, error) {
 		m = &DestinationUnavailable{}
 	case combine(MsgClassSSNM, MsgTypeDestinationAvailable):
 		m = &DestinationAvailable{}
+	case combine(MsgClassSSNM, MsgTypeDestinationStateAudit):
+		m = &DestinationStateAudit{}
 		// ASPSM Messages
 	case combine(MsgClassASPSM, MsgTypeAspUp):
 		m = &AspUp{}
