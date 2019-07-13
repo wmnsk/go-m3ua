@@ -21,15 +21,15 @@ func main() {
 	}
 
 	if *raw > 0 {
-		pc := pc.NewPointCode(uint32(*raw), pc.Variant(*variant))
-		log.Printf("PC successfully converted.\n\tRaw: %d, Formatted: %s, Variant: %s", pc.Uint32(), pc.String(), pc.Variant())
+		p := pc.NewPointCode(uint32(*raw), pc.Variant(*variant))
+		log.Printf("PC successfully converted.\n\tRaw: %d, Formatted: %s, Variant: %s", p.Uint32(), p.String(), p.Variant())
 	}
 
 	if *str != "" {
 		if len(strings.Split(*str, "-")) < 2 {
 			log.Fatalf("Invalid formatted PC given: %s, should be splitted with \"-\".", *str)
 		}
-		pc := pc.NewPointCodeFrom(*str, pc.Variant(*variant))
-		log.Printf("PC successfully converted.\n\tRaw: %d, Formatted: %s, Variant: %s", pc.Uint32(), pc.String(), pc.Variant())
+		p := pc.NewPointCodeFrom(*str, pc.Variant(*variant))
+		log.Printf("PC successfully converted.\n\tRaw: %d, Formatted: %s, Variant: %s", p.Uint32(), p.String(), p.Variant())
 	}
 }

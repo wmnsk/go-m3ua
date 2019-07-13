@@ -11,27 +11,27 @@ import (
 func TestConvertPointCode(t *testing.T) {
 	cases := []struct {
 		name             string
-		pc               *pc.PointCode
+		raw              uint32
 		currVar, nextVar pc.Variant
 		before, after    string
 	}{
 		{
 			name:    "1234/3-8-3 to 4-3-7",
-			pc:      pc.NewPointCode(1234, pc.Variant383),
+			raw:     1234,
 			currVar: pc.Variant383,
 			nextVar: pc.Variant437,
 			before:  "0-154-2",
 			after:   "1-1-82",
 		}, {
 			name:    "0xffffffff/3-8-3 to 4-3-7",
-			pc:      pc.NewPointCode(0xffffffff, pc.Variant383),
+			raw:     0xffffffff,
 			currVar: pc.Variant383,
 			nextVar: pc.Variant437,
 			before:  "7-255-7",
 			after:   "15-7-127",
 		}, {
 			name:    "0/3-8-3 to 4-3-7",
-			pc:      pc.NewPointCode(0, pc.Variant383),
+			raw:     0,
 			currVar: pc.Variant383,
 			nextVar: pc.Variant437,
 			before:  "0-0-0",
@@ -40,16 +40,17 @@ func TestConvertPointCode(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if got, want := c.pc.String(), c.before; got != want {
+		p := pc.NewPointCode(c.raw, c.currVar)
+		if got, want := p.String(), c.before; got != want {
 			t.Errorf("NewPointCode failed. got: %s, want: %s", got, want)
 		}
 
-		if got, want := pc.NewPointCodeFrom(c.before, c.currVar).Uint32(), c.pc.Uint32(); got != want {
+		if got, want := pc.NewPointCodeFrom(c.before, c.currVar).Uint32(), p.Uint32(); got != want {
 			t.Errorf("NewPointCodeFrom failed. got: %d, want: %d", got, want)
 		}
 
-		if got, err := c.pc.ConvertTo(c.nextVar); err != nil {
-			t.Fatalf("Failed to convert %s to %s", c.pc.Variant(), c.nextVar)
+		if got, err := p.ConvertTo(c.nextVar); err != nil {
+			t.Fatalf("Failed to convert %s to %s", p.Variant(), c.nextVar)
 		} else {
 			want := c.after
 			if got != want {
@@ -57,7 +58,7 @@ func TestConvertPointCode(t *testing.T) {
 			}
 		}
 
-		if got, want := pc.NewPointCodeFrom(c.after, c.nextVar).Uint32(), c.pc.Uint32(); got != want {
+		if got, want := pc.NewPointCodeFrom(c.after, c.nextVar).Uint32(), p.Uint32(); got != want {
 			t.Errorf("NewPointCodeFrom failed. got: %d, want: %d", got, want)
 		}
 	}
