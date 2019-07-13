@@ -11,7 +11,9 @@ Simple M3UA protocol implementation in pure Golang.
 
 ### Installation
 
-The following packages should be installed before starting.
+This project supports Go Modules. So you don't need to get dependent packages manually if you are using Go 1.11+ and GO111MODULE is set to `on`.
+
+Otherwise, the following packages should be installed manually.
 
 ```shell-session
 go get -u github.com/pkg/errors
@@ -21,14 +23,12 @@ go get -u github.com/pascaldekloe/goe/verify
 go get -u github.com/wmnsk/go-m3ua
 ```
 
-This project supports Go Modules. So you don't need to get dependent packages manually if you are using Go 1.11+.
-
 _*Non-Linux machine is NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
 
 ### Trying Examples
 
 Working examples are available in [examples directory](./examples/).
-By executing the following commands, you can see the client and server is exchanging M3UA packets.
+Just executing the following commands, you can see the client and server setting up M3UA connection.
 
 ```shell-session
 # Run Server first
@@ -115,7 +115,7 @@ See [example/server directory](./examples/server) for server example.
 ### Messages
 
 | Class    | Message                                         | Supported | Notes                                                          |
-|----------|-------------------------------------------------|-----------|----------------------------------------------------------------|
+| -------- | ----------------------------------------------- | --------- | -------------------------------------------------------------- |
 | Transfer | Payload Data Message (DATA)                     | Yes       | [RFC4666#3.3](https://tools.ietf.org/html/rfc4666#section-3.3) |
 | SSNM     | Destination Unavailable (DUNA)                  | Yes       | [RFC4666#3.4](https://tools.ietf.org/html/rfc4666#section-3.4) |
 |          | Destination Available (DAVA)                    | Yes       |                                                                |
@@ -143,7 +143,7 @@ See [example/server directory](./examples/server) for server example.
 ### Parameters
 
 | Type          | Parameters                   | Supported | Notes |
-|---------------|------------------------------|-----------|-------|
+| ------------- | ---------------------------- | --------- | ----- |
 | Common        | INFO String                  | Yes       |       |
 |               | Routing Context              | Yes       |       |
 |               | Diagnostic Information       | Yes       |       |
@@ -176,7 +176,7 @@ Also note that some exported APIs may be changed without notice before first rel
 
 ## Author
 
-Yoshiyuki Kurauchi ([GitHub](https://github.com/wmnsk/) / [Twitter](https://twitter.com/wmnskdmms))
+Yoshiyuki Kurauchi ([My Website](https://wmnsk.com/) / [Twitter](https://twitter.com/wmnskdmms))
 
 ## LICENSE
 
