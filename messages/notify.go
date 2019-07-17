@@ -11,8 +11,6 @@ import (
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
-var ErrMandatoryNotifyStatusPayloadMissing = errors.New("the Status parameter is mandatory on Notify message (RFC3332), but it's missing")
-
 // Notify is a Notify type of M3UA message.
 type Notify struct {
 	*Header
@@ -60,13 +58,19 @@ func (n *Notify) SerializeTo(b []byte) error {
 
 	var offset = 0
 
-	if n.Status == nil {
-		return ErrMandatoryNotifyStatusPayloadMissing
+	// NOTE:
+	// Precisely, it should validate whether the `Status` parameter exists or not because
+	// the `Status` parameter has to be contained in the `Notify` message.
+	// (ref: https://tools.ietf.org/html/rfc3332#section-3.8.2)
+	// However, this library aims to be flexible using and/or verifying,
+	// so it doesn't check the existence of the parameter for now.
+	// Discussion: https://github.com/wmnsk/go-m3ua/pull/10#discussion_r304225571
+	if n.Status != nil {
+		if err := n.Status.SerializeTo(n.Header.Payload[offset:]); err != nil {
+			return err
+		}
+		offset += n.Status.Len()
 	}
-	if err := n.Status.SerializeTo(n.Header.Payload[offset:]); err != nil {
-		return err
-	}
-	offset += n.Status.Len()
 
 	if n.AspIdentifier != nil {
 		if err := n.AspIdentifier.SerializeTo(n.Header.Payload[offset:]); err != nil {
