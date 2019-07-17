@@ -144,7 +144,7 @@ func (n *Notify) SetLength() {
 	}
 
 	n.Header.SetLength()
-	n.Header.Length += uint32(n.Len() - 8)
+	n.Header.Length += uint32(n.Len())
 }
 
 // Len returns the actual length of Notify.
