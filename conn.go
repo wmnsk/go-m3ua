@@ -82,11 +82,18 @@ var netMap = map[string]string{
 
 // Read reads data from the connection.
 func (c *Conn) Read(b []byte) (n int, err error) {
-	c.mu.Lock()
-	if c.state != StateAspActive {
-		return 0, ErrNotEstablished
+	err = func() error {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+
+		if c.state != StateAspActive {
+			return ErrNotEstablished
+		}
+		return nil
+	}()
+	if err != nil {
+		return 0, err
 	}
-	c.mu.Unlock()
 
 	pd, ok := <-c.dataChan
 	if !ok {

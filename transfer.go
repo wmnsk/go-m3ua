@@ -6,17 +6,25 @@ package m3ua
 
 import (
 	"context"
+	"errors"
 
 	"github.com/wmnsk/go-m3ua/messages"
 )
 
 func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
-	c.mu.Lock()
-	if c.state != StateAspActive {
-		c.errChan <- NewErrUnexpectedMessage(data)
+	err := func() error {
+		c.mu.Lock()
+		defer c.mu.Unlock()
+		if c.state != StateAspActive {
+			c.errChan <- NewErrUnexpectedMessage(data)
+			return errors.New(data.String())
+		}
+		return nil
+	}()
+	if err != nil {
+		// it has already emitted the error into the errChan, early exit
 		return
 	}
-	c.mu.Unlock()
 
 	pd, err := data.ProtocolData.ProtocolData()
 	if err != nil {
