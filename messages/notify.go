@@ -11,16 +11,19 @@ import (
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
+var ErrMandatoryNotifyStatusPayloadMissing = errors.New("the Status parameter is mandatory on Notify message (RFC3332), but it's missing")
+
 // Notify is a Notify type of M3UA message.
 type Notify struct {
 	*Header
+	Status         *params.Param
 	AspIdentifier  *params.Param
 	RoutingContext *params.Param
 	InfoString     *params.Param
 }
 
 // NewNotify creates a new Notify.
-func NewNotify(aspID, rtCtx, info *params.Param) *Notify {
+func NewNotify(status, aspID, rtCtx, info *params.Param) *Notify {
 	n := &Notify{
 		Header: &Header{
 			Version:  1,
@@ -28,6 +31,7 @@ func NewNotify(aspID, rtCtx, info *params.Param) *Notify {
 			Class:    MsgClassManagement,
 			Type:     MsgTypeNotify,
 		},
+		Status:         status,
 		AspIdentifier:  aspID,
 		RoutingContext: rtCtx,
 		InfoString:     info,
@@ -55,6 +59,15 @@ func (n *Notify) SerializeTo(b []byte) error {
 	n.Header.Payload = make([]byte, n.Len()-8)
 
 	var offset = 0
+
+	if n.Status == nil {
+		return ErrMandatoryNotifyStatusPayloadMissing
+	}
+	if err := n.Status.SerializeTo(n.Header.Payload[offset:]); err != nil {
+		return err
+	}
+	offset += n.Status.Len()
+
 	if n.AspIdentifier != nil {
 		if err := n.AspIdentifier.SerializeTo(n.Header.Payload[offset:]); err != nil {
 			return err
@@ -101,6 +114,8 @@ func (n *Notify) DecodeFromBytes(b []byte) error {
 	}
 	for _, pr := range prs {
 		switch pr.Tag {
+		case params.Status:
+			n.Status = pr
 		case params.AspIdentifier:
 			n.AspIdentifier = pr
 		case params.RoutingContext:
@@ -116,6 +131,8 @@ func (n *Notify) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (n *Notify) SetLength() {
+	n.Status.SetLength()
+
 	if n.AspIdentifier != nil {
 		n.AspIdentifier.SetLength()
 	}
@@ -127,12 +144,12 @@ func (n *Notify) SetLength() {
 	}
 
 	n.Header.SetLength()
-	n.Header.Length += uint32(n.Len())
+	n.Header.Length += uint32(n.Len() - 8)
 }
 
 // Len returns the actual length of Notify.
 func (n *Notify) Len() int {
-	l := 8
+	l := 8 + n.Status.Len()
 	if n.AspIdentifier != nil {
 		l += n.AspIdentifier.Len()
 	}
@@ -147,8 +164,9 @@ func (n *Notify) Len() int {
 
 // String returns the Notify values in human readable format.
 func (n *Notify) String() string {
-	return fmt.Sprintf("{Header: %s, AspIdentifier: %s, RoutingContext: %s, InfoString: %s}",
+	return fmt.Sprintf("{Header: %s, Status: %s, AspIdentifier: %s, RoutingContext: %s, InfoString: %s}",
 		n.Header.String(),
+		n.Status.String(),
 		n.AspIdentifier.String(),
 		n.RoutingContext.String(),
 		n.InfoString.String(),
