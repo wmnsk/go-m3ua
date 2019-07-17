@@ -135,8 +135,9 @@ func (n *Notify) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (n *Notify) SetLength() {
-	n.Status.SetLength()
-
+	if n.Status != nil {
+		n.Status.SetLength()
+	}
 	if n.AspIdentifier != nil {
 		n.AspIdentifier.SetLength()
 	}
@@ -153,7 +154,11 @@ func (n *Notify) SetLength() {
 
 // Len returns the actual length of Notify.
 func (n *Notify) Len() int {
-	l := 8 + n.Status.Len()
+	l := 8
+
+	if n.Status != nil {
+		l += n.Status.Len()
+	}
 	if n.AspIdentifier != nil {
 		l += n.AspIdentifier.Len()
 	}
