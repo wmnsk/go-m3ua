@@ -11,29 +11,7 @@ import (
 	"time"
 
 	"github.com/ishidawataru/sctp"
-	"github.com/wmnsk/go-m3ua/messages/params"
 )
-
-// NewClientConfig creates a new Config for Client.
-//
-// The optional parameters that is not required (like CorrelationID),
-// omit it by setting it to nil after created *Config.
-func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
-	return &Config{
-		HeartbeatInfo:          hbInfo,
-		AspIdentifier:          params.NewAspIdentifier(aspID),
-		TrafficModeType:        params.NewTrafficModeType(tmt),
-		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
-		RoutingContexts:        params.NewRoutingContext(rtCtxs...),
-		CorrelationID:          params.NewCorrelationID(corrID),
-		OriginatingPointCode:   opc,
-		DestinationPointCode:   dpc,
-		ServiceIndicator:       si,
-		NetworkIndicator:       ni,
-		MessagePriority:        mp,
-		SignalingLinkSelection: sls,
-	}
-}
 
 // Dial establishes a M3UA connection as a client.
 //

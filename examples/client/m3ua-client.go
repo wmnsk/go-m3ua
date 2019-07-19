@@ -35,6 +35,22 @@ func main() {
 	}
 
 	// create *Config to be used in M3UA connection
+	config := m3ua.NewConfig(
+		0x11111111,            // OriginatingPointCode
+		0x22222222,            // DestinationPointCode
+		params.ServiceIndSCCP, // ServiceIndicator
+		0,                     // NetworkIndicator
+		0,                     // MessagePriority
+		1,                     // SignalingLinkSelection
+	)
+	config. // set parameters to use
+		EnableHeartbeat(*hbInt, 10*time.Second).
+		SetAspIdentifier(1).
+		SetTrafficModeType(params.TrafficModeLoadshare).
+		SetNetworkAppearance(0).
+		SetRoutingContexts(1, 2)
+
+	/* or, you can define config in the following way.
 	config := m3ua.NewClientConfig(
 		&m3ua.HeartbeatInfo{
 			Enabled:  true,
@@ -55,6 +71,7 @@ func main() {
 	)
 	// set nil on unnecessary parameters.
 	config.CorrelationID = nil
+	*/
 
 	// setup SCTP peer on the specified IPs and Port.
 	raddr, err := sctp.ResolveSCTPAddr("sctp", *addr)

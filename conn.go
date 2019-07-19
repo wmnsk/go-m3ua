@@ -17,30 +17,6 @@ import (
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
-// HeartbeatInfo is a set of information for M3UA BEAT.
-type HeartbeatInfo struct {
-	Enabled  bool
-	Interval time.Duration
-	Timer    time.Duration
-	Data     []byte
-}
-
-// Config is a configration that defines a M3UA server.
-type Config struct {
-	*HeartbeatInfo
-	AspIdentifier          *params.Param
-	TrafficModeType        *params.Param
-	NetworkAppearance      *params.Param
-	RoutingContexts        *params.Param
-	CorrelationID          *params.Param
-	OriginatingPointCode   uint32
-	DestinationPointCode   uint32
-	ServiceIndicator       uint8
-	NetworkIndicator       uint8
-	MessagePriority        uint8
-	SignalingLinkSelection uint8
-}
-
 type mode uint8
 
 const (

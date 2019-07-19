@@ -14,26 +14,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/ishidawataru/sctp"
-	"github.com/wmnsk/go-m3ua/messages/params"
 )
-
-// NewServerConfig creates a new Config for Server.
-func NewServerConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
-	return &Config{
-		HeartbeatInfo:          hbInfo,
-		AspIdentifier:          params.NewAspIdentifier(aspID),
-		TrafficModeType:        params.NewTrafficModeType(tmt),
-		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
-		RoutingContexts:        params.NewRoutingContext(rtCtxs...),
-		CorrelationID:          params.NewCorrelationID(corrID),
-		OriginatingPointCode:   opc,
-		DestinationPointCode:   dpc,
-		ServiceIndicator:       si,
-		NetworkIndicator:       ni,
-		MessagePriority:        mp,
-		SignalingLinkSelection: sls,
-	}
-}
 
 // Listener is a M3UA listener.
 type Listener struct {
