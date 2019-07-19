@@ -61,7 +61,7 @@ func (n *Notify) SerializeTo(b []byte) error {
 	// NOTE:
 	// Precisely, it should validate whether the `Status` parameter exists or not because
 	// the `Status` parameter has to be contained in the `Notify` message.
-	// (ref: https://tools.ietf.org/html/rfc3332#section-3.8.2)
+	// (ref: https://tools.ietf.org/html/rfc4666#section-3.8.2)
 	// However, this library aims to be flexible using and/or verifying,
 	// so it doesn't check the existence of the parameter for now.
 	// Discussion: https://github.com/wmnsk/go-m3ua/pull/10#discussion_r304225571
