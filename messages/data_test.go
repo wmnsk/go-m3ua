@@ -151,7 +151,7 @@ func TestData(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeData(b)
+		v, err := ParseData(b)
 		if err != nil {
 			return nil, err
 		}

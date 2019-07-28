@@ -5,6 +5,8 @@
 package messages
 
 import (
+	"log"
+
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
@@ -39,68 +41,68 @@ func NewDestinationStateAudit(nwApr, rtCtx, apcs, info *params.Param) *Destinati
 	return d
 }
 
-// Serialize returns the byte sequence generated from a DestinationStateAudit.
-func (d *DestinationStateAudit) Serialize() ([]byte, error) {
-	b := make([]byte, d.Len())
-	if err := d.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a DestinationStateAudit.
+func (d *DestinationStateAudit) MarshalBinary() ([]byte, error) {
+	b := make([]byte, d.MarshalLen())
+	if err := d.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize DestinationStateAudit")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (d *DestinationStateAudit) SerializeTo(b []byte) error {
-	if len(b) < d.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (d *DestinationStateAudit) MarshalTo(b []byte) error {
+	if len(b) < d.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	d.Header.Payload = make([]byte, d.Len()-8)
+	d.Header.Payload = make([]byte, d.MarshalLen()-8)
 
 	var offset = 0
-	if p := d.NetworkAppearance; p != nil {
-		if err := p.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.NetworkAppearance; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += p.Len()
+		offset += param.MarshalLen()
 	}
-	if p := d.RoutingContext; p != nil {
-		if err := p.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.RoutingContext; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += p.Len()
+		offset += param.MarshalLen()
 	}
-	if p := d.AffectedPointCode; p != nil {
-		if err := p.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.AffectedPointCode; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += p.Len()
+		offset += param.MarshalLen()
 	}
-	if p := d.InfoString; p != nil {
-		if err := p.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.InfoString; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
-	return d.Header.SerializeTo(b)
+	return d.Header.MarshalTo(b)
 }
 
-// DecodeDestinationStateAudit decodes given byte sequence as a DestinationStateAudit.
-func DecodeDestinationStateAudit(b []byte) (*DestinationStateAudit, error) {
+// ParseDestinationStateAudit decodes given byte sequence as a DestinationStateAudit.
+func ParseDestinationStateAudit(b []byte) (*DestinationStateAudit, error) {
 	d := &DestinationStateAudit{}
-	if err := d.DecodeFromBytes(b); err != nil {
+	if err := d.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (d *DestinationStateAudit) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (d *DestinationStateAudit) UnmarshalBinary(b []byte) error {
 	var err error
-	d.Header, err = DecodeHeader(b)
+	d.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode DUNA")
 	}
 
-	prs, err := params.DecodeMultiParams(d.Header.Payload)
+	prs, err := params.ParseMultiParams(d.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode DUNA")
 	}
@@ -123,37 +125,37 @@ func (d *DestinationStateAudit) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (d *DestinationStateAudit) SetLength() {
-	if p := d.NetworkAppearance; p != nil {
-		p.SetLength()
+	if param := d.NetworkAppearance; param != nil {
+		param.SetLength()
 	}
-	if p := d.RoutingContext; p != nil {
-		p.SetLength()
+	if param := d.RoutingContext; param != nil {
+		param.SetLength()
 	}
-	if p := d.AffectedPointCode; p != nil {
-		p.SetLength()
+	if param := d.AffectedPointCode; param != nil {
+		param.SetLength()
 	}
-	if p := d.InfoString; p != nil {
-		p.SetLength()
+	if param := d.InfoString; param != nil {
+		param.SetLength()
 	}
 
 	d.Header.SetLength()
-	d.Header.Length += uint32(d.Len())
+	d.Header.Length += uint32(d.MarshalLen())
 }
 
-// Len returns the actual length of DestinationStateAudit.
-func (d *DestinationStateAudit) Len() int {
+// MarshalLen returns the serial length of DestinationStateAudit.
+func (d *DestinationStateAudit) MarshalLen() int {
 	l := 8
-	if p := d.NetworkAppearance; p != nil {
-		l += p.Len()
+	if param := d.NetworkAppearance; param != nil {
+		l += param.MarshalLen()
 	}
-	if p := d.RoutingContext; p != nil {
-		l += p.Len()
+	if param := d.RoutingContext; param != nil {
+		l += param.MarshalLen()
 	}
-	if p := d.AffectedPointCode; p != nil {
-		l += p.Len()
+	if param := d.AffectedPointCode; param != nil {
+		l += param.MarshalLen()
 	}
-	if p := d.InfoString; p != nil {
-		l += p.Len()
+	if param := d.InfoString; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -181,4 +183,44 @@ func (d *DestinationStateAudit) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (d *DestinationStateAudit) MessageTypeName() string {
 	return "Destination Unavailable"
+}
+
+// Serialize returns the byte sequence generated from a DestinationStateAudit.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (d *DestinationStateAudit) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return d.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (d *DestinationStateAudit) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return d.MarshalTo(b)
+}
+
+// DecodeDestinationStateAudit decodes given byte sequence as a DestinationStateAudit.
+//
+// DEPRECATED: use ParseDestinationStateAudit instead.
+func DecodeDestinationStateAudit(b []byte) (*DestinationStateAudit, error) {
+	log.Println("DEPRECATED: use ParseDestinationStateAudit instead")
+	return ParseDestinationStateAudit(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (d *DestinationStateAudit) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return d.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of DestinationStateAudit.
+//
+// DEPRECATED: use MarshalLen instead.
+func (d *DestinationStateAudit) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return d.MarshalLen()
 }

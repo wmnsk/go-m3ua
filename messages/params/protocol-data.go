@@ -7,6 +7,7 @@ package params
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 )
 
 // ServiceIndicator definitions.
@@ -49,7 +50,7 @@ func NewProtocolDataPayload(opc, dpc uint32, si, ni, mp, sls uint8, data []byte)
 		NetworkIndicator:       ni,
 		MessagePriority:        mp,
 		SignalingLinkSelection: sls,
-		Data: data,
+		Data:                   data,
 	}
 }
 
@@ -57,7 +58,7 @@ func NewProtocolDataPayload(opc, dpc uint32, si, ni, mp, sls uint8, data []byte)
 // Note that this returns *Param, as no specific structure in this parameter.
 // Also, Payload will be serialized and not accessible until calling ProtocolData() func.
 func NewProtocolData(opc, dpc uint32, si, ni, mp, sls uint8, data []byte) *Param {
-	pd, _ := NewProtocolDataPayload(opc, dpc, si, ni, mp, sls, data).Serialize()
+	pd, _ := NewProtocolDataPayload(opc, dpc, si, ni, mp, sls, data).MarshalBinary()
 	p := &Param{
 		Tag:  ProtocolData,
 		Data: pd,
@@ -73,22 +74,22 @@ func (p *Param) ProtocolData() (*ProtocolDataPayload, error) {
 		return nil, ErrInvalidType
 	}
 
-	return DecodeProtocolDataPayload(p.Data)
+	return ParseProtocolDataPayload(p.Data)
 }
 
-// Serialize returns the byte sequence generated from a M3UA ProtocolDataPayload instance.
-func (p *ProtocolDataPayload) Serialize() ([]byte, error) {
-	b := make([]byte, p.Len())
-	if err := p.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a M3UA ProtocolDataPayload instance.
+func (p *ProtocolDataPayload) MarshalBinary() ([]byte, error) {
+	b := make([]byte, p.MarshalLen())
+	if err := p.MarshalTo(b); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (p *ProtocolDataPayload) SerializeTo(b []byte) error {
-	if len(b) < p.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (p *ProtocolDataPayload) MarshalTo(b []byte) error {
+	if len(b) < p.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
 	binary.BigEndian.PutUint32(b[0:4], p.OriginatingPointCode)
@@ -97,24 +98,24 @@ func (p *ProtocolDataPayload) SerializeTo(b []byte) error {
 	b[9] = p.NetworkIndicator
 	b[10] = p.MessagePriority
 	b[11] = p.SignalingLinkSelection
-	copy(b[12:p.Len()], p.Data)
+	copy(b[12:p.MarshalLen()], p.Data)
 	return nil
 }
 
-// DecodeProtocolDataPayload decodes given byte sequence as a M3UA ProtocolDataPayload.
-func DecodeProtocolDataPayload(b []byte) (*ProtocolDataPayload, error) {
+// ParseProtocolDataPayload decodes given byte sequence as a M3UA ProtocolDataPayload.
+func ParseProtocolDataPayload(b []byte) (*ProtocolDataPayload, error) {
 	p := &ProtocolDataPayload{}
-	if err := p.DecodeFromBytes(b); err != nil {
+	if err := p.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA ProtocolDataPayload.
-func (p *ProtocolDataPayload) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA ProtocolDataPayload.
+func (p *ProtocolDataPayload) UnmarshalBinary(b []byte) error {
 	l := len(b)
 	if l < 12 {
-		return ErrTooShortToDecode
+		return ErrTooShortToParse
 	}
 
 	p.OriginatingPointCode = binary.BigEndian.Uint32(b[0:4])
@@ -127,8 +128,8 @@ func (p *ProtocolDataPayload) DecodeFromBytes(b []byte) error {
 	return nil
 }
 
-// Len returns field length in integer.
-func (p *ProtocolDataPayload) Len() int {
+// MarshalLen returns serial length in integer.
+func (p *ProtocolDataPayload) MarshalLen() int {
 	return 12 + len(p.Data)
 }
 
@@ -143,4 +144,44 @@ func (p *ProtocolDataPayload) String() string {
 		p.SignalingLinkSelection,
 		p.Data,
 	)
+}
+
+// Serialize returns the byte sequence generated from a ProtocolDataPayload.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (p *ProtocolDataPayload) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return p.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (p *ProtocolDataPayload) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return p.MarshalTo(b)
+}
+
+// DecodeProtocolDataPayload decodes given byte sequence as a ProtocolDataPayload.
+//
+// DEPRECATED: use ParseProtocolDataPayload instead.
+func DecodeProtocolDataPayload(b []byte) (*ProtocolDataPayload, error) {
+	log.Println("DEPRECATED: use ParseProtocolDataPayload instead")
+	return ParseProtocolDataPayload(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (p *ProtocolDataPayload) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return p.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of ProtocolDataPayload.
+//
+// DEPRECATED: use MarshalLen instead.
+func (p *ProtocolDataPayload) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return p.MarshalLen()
 }

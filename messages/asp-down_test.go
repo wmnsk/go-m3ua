@@ -34,7 +34,7 @@ func TestAspDown(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeAspDown(b)
+		v, err := ParseAspDown(b)
 		if err != nil {
 			return nil, err
 		}

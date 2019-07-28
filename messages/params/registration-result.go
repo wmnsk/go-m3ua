@@ -4,6 +4,8 @@
 
 package params
 
+import "log"
+
 // RegistrationResultPayload is the payload of RegistrationResult.
 type RegistrationResultPayload struct {
 	LocalRoutingKeyIdentifier, RegistrationStatus, RoutingContext *Param
@@ -35,25 +37,25 @@ func (p *Param) RegistrationResult() (*RegistrationResultPayload, error) {
 		return nil, ErrInvalidType
 	}
 
-	d, err := DecodeRegistrationResultPayload(p.Data)
+	d, err := ParseRegistrationResultPayload(p.Data)
 	if err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeRegistrationResultPayload decodes given byte sequence as a RegistrationResultPayload.
-func DecodeRegistrationResultPayload(b []byte) (*RegistrationResultPayload, error) {
+// ParseRegistrationResultPayload decodes given byte sequence as a RegistrationResultPayload.
+func ParseRegistrationResultPayload(b []byte) (*RegistrationResultPayload, error) {
 	d := &RegistrationResultPayload{}
-	if err := d.DecodeFromBytes(b); err != nil {
+	if err := d.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
-func (d *RegistrationResultPayload) DecodeFromBytes(b []byte) error {
-	ps, err := DecodeMultiParams(b)
+// UnmarshalBinary sets the values retrieved from byte sequence in a Param.
+func (d *RegistrationResultPayload) UnmarshalBinary(b []byte) error {
+	ps, err := ParseMultiParams(b)
 	if err != nil {
 		return err
 	}
@@ -66,4 +68,20 @@ func (d *RegistrationResultPayload) DecodeFromBytes(b []byte) error {
 	d.RoutingContext = ps[2]
 
 	return nil
+}
+
+// DecodeRegistrationResultPayload decodes given byte sequence as a RegistrationResultPayload.
+//
+// DEPRECATED: use ParseRegistrationResultPayload instead.
+func DecodeRegistrationResultPayload(b []byte) (*RegistrationResultPayload, error) {
+	log.Println("DEPRECATED: use ParseRegistrationResultPayload instead")
+	return ParseRegistrationResultPayload(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (d *RegistrationResultPayload) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return d.UnmarshalBinary(b)
 }

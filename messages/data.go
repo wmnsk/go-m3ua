@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -39,72 +40,72 @@ func NewData(nwApr, rtCtx, pd, corrID *params.Param) *Data {
 	return d
 }
 
-// Serialize returns the byte sequence generated from a Data.
-func (d *Data) Serialize() ([]byte, error) {
-	b := make([]byte, d.Len())
-	if err := d.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Data.
+func (d *Data) MarshalBinary() ([]byte, error) {
+	b := make([]byte, d.MarshalLen())
+	if err := d.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize Data")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (d *Data) SerializeTo(b []byte) error {
-	if len(b) < d.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (d *Data) MarshalTo(b []byte) error {
+	if len(b) < d.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	d.Header.Payload = make([]byte, d.Len()-8)
+	d.Header.Payload = make([]byte, d.MarshalLen()-8)
 
 	var offset = 0
-	if d.NetworkAppearance != nil {
-		if err := d.NetworkAppearance.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.NetworkAppearance; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += d.NetworkAppearance.Len()
+		offset += param.MarshalLen()
 	}
 
-	if d.RoutingContext != nil {
-		if err := d.RoutingContext.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.RoutingContext; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += d.RoutingContext.Len()
+		offset += param.MarshalLen()
 	}
 
-	if d.ProtocolData != nil {
-		if err := d.ProtocolData.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.ProtocolData; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += d.ProtocolData.Len()
+		offset += param.MarshalLen()
 	}
 
-	if d.CorrelationID != nil {
-		if err := d.CorrelationID.SerializeTo(d.Header.Payload[offset:]); err != nil {
+	if param := d.CorrelationID; param != nil {
+		if err := param.MarshalTo(d.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
 
-	return d.Header.SerializeTo(b)
+	return d.Header.MarshalTo(b)
 }
 
-// DecodeData decodes given byte sequence as a Data.
-func DecodeData(b []byte) (*Data, error) {
+// ParseData decodes given byte sequence as a Data.
+func ParseData(b []byte) (*Data, error) {
 	d := &Data{}
-	if err := d.DecodeFromBytes(b); err != nil {
+	if err := d.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (d *Data) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (d *Data) UnmarshalBinary(b []byte) error {
 	var err error
-	d.Header, err = DecodeHeader(b)
+	d.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(d.Header.Payload)
+	prs, err := params.ParseMultiParams(d.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -127,34 +128,37 @@ func (d *Data) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (d *Data) SetLength() {
-	if d.NetworkAppearance != nil {
-		d.NetworkAppearance.SetLength()
+	if param := d.NetworkAppearance; param != nil {
+		param.SetLength()
 	}
-	if d.RoutingContext != nil {
-		d.RoutingContext.SetLength()
+	if param := d.RoutingContext; param != nil {
+		param.SetLength()
 	}
-	if d.ProtocolData != nil {
-		d.ProtocolData.SetLength()
+	if param := d.ProtocolData; param != nil {
+		param.SetLength()
 	}
-	if d.CorrelationID != nil {
-		d.CorrelationID.SetLength()
+	if param := d.CorrelationID; param != nil {
+		param.SetLength()
 	}
 
 	d.Header.SetLength()
-	d.Header.Length += uint32(d.Len())
+	d.Header.Length += uint32(d.MarshalLen())
 }
 
-// Len returns the actual length of Data.
-func (d *Data) Len() int {
-	l := 8 + d.ProtocolData.Len()
-	if d.NetworkAppearance != nil {
-		l += d.NetworkAppearance.Len()
+// MarshalLen returns the serial length of Data.
+func (d *Data) MarshalLen() int {
+	l := 8
+	if param := d.NetworkAppearance; param != nil {
+		l += param.MarshalLen()
 	}
-	if d.RoutingContext != nil {
-		l += d.RoutingContext.Len()
+	if param := d.RoutingContext; param != nil {
+		l += param.MarshalLen()
 	}
-	if d.CorrelationID != nil {
-		l += d.CorrelationID.Len()
+	if param := d.ProtocolData; param != nil {
+		l += param.MarshalLen()
+	}
+	if param := d.CorrelationID; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -193,4 +197,44 @@ func (d *Data) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (d *Data) MessageTypeName() string {
 	return "Payload Data"
+}
+
+// Serialize returns the byte sequence generated from a Data.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (d *Data) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return d.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (d *Data) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return d.MarshalTo(b)
+}
+
+// DecodeData decodes given byte sequence as a Data.
+//
+// DEPRECATED: use ParseData instead.
+func DecodeData(b []byte) (*Data, error) {
+	log.Println("DEPRECATED: use ParseData instead")
+	return ParseData(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (d *Data) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return d.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Data.
+//
+// DEPRECATED: use MarshalLen instead.
+func (d *Data) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return d.MarshalLen()
 }

@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -41,79 +42,79 @@ func NewError(code, rtCtx, nwApr, apc, info *params.Param) *Error {
 	return e
 }
 
-// Serialize returns the byte sequence generated from a Error.
-func (e *Error) Serialize() ([]byte, error) {
-	b := make([]byte, e.Len())
-	if err := e.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Error.
+func (e *Error) MarshalBinary() ([]byte, error) {
+	b := make([]byte, e.MarshalLen())
+	if err := e.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize Error")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (e *Error) SerializeTo(b []byte) error {
-	if len(b) < e.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (e *Error) MarshalTo(b []byte) error {
+	if len(b) < e.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	e.Header.Payload = make([]byte, e.Len()-8)
+	e.Header.Payload = make([]byte, e.MarshalLen()-8)
 
 	var offset = 0
-	if e.ErrorCode != nil {
-		if err := e.ErrorCode.SerializeTo(e.Header.Payload[offset:]); err != nil {
+	if param := e.ErrorCode; param != nil {
+		if err := param.MarshalTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += e.ErrorCode.Len()
+		offset += param.MarshalLen()
 	}
 
-	if e.RoutingContext != nil {
-		if err := e.RoutingContext.SerializeTo(e.Header.Payload[offset:]); err != nil {
+	if param := e.RoutingContext; param != nil {
+		if err := param.MarshalTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += e.RoutingContext.Len()
+		offset += param.MarshalLen()
 	}
 
-	if e.NetworkAppearance != nil {
-		if err := e.NetworkAppearance.SerializeTo(e.Header.Payload[offset:]); err != nil {
+	if param := e.NetworkAppearance; param != nil {
+		if err := param.MarshalTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += e.NetworkAppearance.Len()
+		offset += param.MarshalLen()
 	}
 
-	if e.AffectedPointCode != nil {
-		if err := e.AffectedPointCode.SerializeTo(e.Header.Payload[offset:]); err != nil {
+	if param := e.AffectedPointCode; param != nil {
+		if err := param.MarshalTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += e.AffectedPointCode.Len()
+		offset += param.MarshalLen()
 	}
 
-	if e.DiagnosticInformation != nil {
-		if err := e.DiagnosticInformation.SerializeTo(e.Header.Payload[offset:]); err != nil {
+	if param := e.DiagnosticInformation; param != nil {
+		if err := param.MarshalTo(e.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
 
-	return e.Header.SerializeTo(b)
+	return e.Header.MarshalTo(b)
 }
 
-// DecodeError decodes given byte sequence as a Error.
-func DecodeError(b []byte) (*Error, error) {
+// ParseError decodes given byte sequence as a Error.
+func ParseError(b []byte) (*Error, error) {
 	e := &Error{}
-	if err := e.DecodeFromBytes(b); err != nil {
+	if err := e.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return e, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (e *Error) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (e *Error) UnmarshalBinary(b []byte) error {
 	var err error
-	e.Header, err = DecodeHeader(b)
+	e.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(e.Header.Payload)
+	prs, err := params.ParseMultiParams(e.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -138,43 +139,43 @@ func (e *Error) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (e *Error) SetLength() {
-	if e.ErrorCode != nil {
-		e.ErrorCode.SetLength()
+	if param := e.ErrorCode; param != nil {
+		param.SetLength()
 	}
-	if e.RoutingContext != nil {
-		e.RoutingContext.SetLength()
+	if param := e.RoutingContext; param != nil {
+		param.SetLength()
 	}
-	if e.NetworkAppearance != nil {
-		e.NetworkAppearance.SetLength()
+	if param := e.NetworkAppearance; param != nil {
+		param.SetLength()
 	}
-	if e.AffectedPointCode != nil {
-		e.AffectedPointCode.SetLength()
+	if param := e.AffectedPointCode; param != nil {
+		param.SetLength()
 	}
-	if e.DiagnosticInformation != nil {
-		e.DiagnosticInformation.SetLength()
+	if param := e.DiagnosticInformation; param != nil {
+		param.SetLength()
 	}
 
 	e.Header.SetLength()
-	e.Header.Length += uint32(e.Len())
+	e.Header.Length += uint32(e.MarshalLen())
 }
 
-// Len returns the actual length of Error.
-func (e *Error) Len() int {
+// MarshalLen returns the serial length of Error.
+func (e *Error) MarshalLen() int {
 	l := 8
-	if e.ErrorCode != nil {
-		l += e.ErrorCode.Len()
+	if param := e.ErrorCode; param != nil {
+		l += param.MarshalLen()
 	}
-	if e.RoutingContext != nil {
-		l += e.RoutingContext.Len()
+	if param := e.RoutingContext; param != nil {
+		l += param.MarshalLen()
 	}
-	if e.NetworkAppearance != nil {
-		l += e.NetworkAppearance.Len()
+	if param := e.NetworkAppearance; param != nil {
+		l += param.MarshalLen()
 	}
-	if e.AffectedPointCode != nil {
-		l += e.AffectedPointCode.Len()
+	if param := e.AffectedPointCode; param != nil {
+		l += param.MarshalLen()
 	}
-	if e.DiagnosticInformation != nil {
-		l += e.DiagnosticInformation.Len()
+	if param := e.DiagnosticInformation; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -214,4 +215,44 @@ func (e *Error) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (e *Error) MessageTypeName() string {
 	return "Error"
+}
+
+// Serialize returns the byte sequence generated from a Error.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (e *Error) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return e.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (e *Error) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return e.MarshalTo(b)
+}
+
+// DecodeError decodes given byte sequence as a Error.
+//
+// DEPRECATED: use ParseError instead.
+func DecodeError(b []byte) (*Error, error) {
+	log.Println("DEPRECATED: use ParseError instead")
+	return ParseError(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (e *Error) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return e.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Error.
+//
+// DEPRECATED: use MarshalLen instead.
+func (e *Error) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return e.MarshalLen()
 }

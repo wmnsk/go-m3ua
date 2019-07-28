@@ -4,6 +4,8 @@
 
 package params
 
+import "log"
+
 // RoutingKeyPayload is the payload of RoutingKey.
 type RoutingKeyPayload struct {
 	LocalRoutingKeyIdentifier, RoutingContext, TrafficModeType, DestinationPointCode, NetworkAppearance, ServiceIndicators, OriginatingPointCodeList *Param
@@ -45,25 +47,25 @@ func (p *Param) RoutingKey() (*RoutingKeyPayload, error) {
 		return nil, ErrInvalidType
 	}
 
-	r, err := DecodeRoutingKeyPayload(p.Data)
+	r, err := ParseRoutingKeyPayload(p.Data)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-// DecodeRoutingKeyPayload decodes given byte sequence as a RoutingKeyPayload.
-func DecodeRoutingKeyPayload(b []byte) (*RoutingKeyPayload, error) {
+// ParseRoutingKeyPayload decodes given byte sequence as a RoutingKeyPayload.
+func ParseRoutingKeyPayload(b []byte) (*RoutingKeyPayload, error) {
 	r := &RoutingKeyPayload{}
-	if err := r.DecodeFromBytes(b); err != nil {
+	if err := r.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
-func (r *RoutingKeyPayload) DecodeFromBytes(b []byte) error {
-	ps, err := DecodeMultiParams(b)
+// UnmarshalBinary sets the values retrieved from byte sequence in a Param.
+func (r *RoutingKeyPayload) UnmarshalBinary(b []byte) error {
+	ps, err := ParseMultiParams(b)
 	if err != nil {
 		return err
 	}
@@ -92,4 +94,20 @@ func (r *RoutingKeyPayload) DecodeFromBytes(b []byte) error {
 		}
 	}
 	return nil
+}
+
+// DecodeRoutingKeyPayload decodes given byte sequence as a RoutingKeyPayload.
+//
+// DEPRECATED: use ParseRoutingKeyPayload instead.
+func DecodeRoutingKeyPayload(b []byte) (*RoutingKeyPayload, error) {
+	log.Println("DEPRECATED: use ParseRoutingKeyPayload instead")
+	return ParseRoutingKeyPayload(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (r *RoutingKeyPayload) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return r.UnmarshalBinary(b)
 }

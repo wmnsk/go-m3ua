@@ -60,7 +60,7 @@ func TestAspInactiveAck(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeAspInactiveAck(b)
+		v, err := ParseAspInactiveAck(b)
 		if err != nil {
 			return nil, err
 		}

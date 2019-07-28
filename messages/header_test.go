@@ -30,7 +30,7 @@ func TestHeader(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeHeader(b)
+		v, err := ParseHeader(b)
 		if err != nil {
 			return nil, err
 		}

@@ -27,7 +27,7 @@ func TestHeartbeatAck(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeHeartbeatAck(b)
+		v, err := ParseHeartbeatAck(b)
 		if err != nil {
 			return nil, err
 		}

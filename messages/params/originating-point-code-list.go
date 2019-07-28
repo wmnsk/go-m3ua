@@ -28,21 +28,21 @@ type PointCodeWithMask struct {
 	PointCode uint32
 }
 
-// Serialize creates the 32bit-sized []byte from PointCodeWithMask.
-func (p *PointCodeWithMask) Serialize() ([]byte, error) {
+// MarshalBinary creates the 32bit-sized []byte from PointCodeWithMask.
+func (p *PointCodeWithMask) MarshalBinary() ([]byte, error) {
 	b := make([]byte, 4)
 	// to be written?
 }
 
-func (p *PointCodeWithMask) SerializeTo(b []bytes) error {
+func (p *PointCodeWithMask) MarshalTo(b []bytes) error {
 	// to be written?
 }
 
-func (p *PointCodeWithMask) Decode(b []bytes) (*PointCodeWithMask, error) {
+func (p *PointCodeWithMask) Parse(b []bytes) (*PointCodeWithMask, error) {
 	// to be written?
 }
 
-func (p *PointCodeWithMask) DecodeFromBytes(b []bytes) error {
+func (p *PointCodeWithMask) UnmarshalBinary(b []bytes) error {
 	// to be written?
 }
 */

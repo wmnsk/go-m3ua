@@ -17,8 +17,8 @@ import (
 )
 
 type serializeable interface {
-	Serialize() ([]byte, error)
-	Len() int
+	MarshalBinary() ([]byte, error)
+	MarshalLen() int
 }
 
 type testCase struct {
@@ -46,7 +46,7 @@ func runTests(t *testing.T, cases []testCase, decode decoderFunc) {
 			})
 
 			t.Run("encode", func(t *testing.T) {
-				b, err := c.structured.Serialize()
+				b, err := c.structured.MarshalBinary()
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -57,7 +57,7 @@ func runTests(t *testing.T, cases []testCase, decode decoderFunc) {
 			})
 
 			t.Run("len", func(t *testing.T) {
-				if got, want := c.structured.Len(), len(c.serialized); got != want {
+				if got, want := c.structured.MarshalLen(), len(c.serialized); got != want {
 					t.Fatalf("got %v want %v", got, want)
 				}
 			})
@@ -67,7 +67,7 @@ func runTests(t *testing.T, cases []testCase, decode decoderFunc) {
 				if _, ok := c.structured.(*Header); ok {
 					return
 				}
-				decoded, err := Decode(c.serialized)
+				decoded, err := Parse(c.serialized)
 				if err != nil {
 					t.Fatal(err)
 				}

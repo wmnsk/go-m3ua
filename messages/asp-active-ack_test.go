@@ -130,7 +130,7 @@ func TestAspActiveAck(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeAspActiveAck(b)
+		v, err := ParseAspActiveAck(b)
 		if err != nil {
 			return nil, err
 		}

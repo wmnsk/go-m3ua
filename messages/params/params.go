@@ -7,6 +7,7 @@ package params
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 )
@@ -61,10 +62,10 @@ const (
 
 // Error definitions.
 var (
-	ErrInvalidType         = errors.New("got invalid type in parameter")
-	ErrInvalidLength       = errors.New("parameter has invalid length value")
-	ErrTooShortToSerialize = errors.New("insufficient buffer to serialize parameter to")
-	ErrTooShortToDecode    = errors.New("too short to decode as parameter")
+	ErrInvalidType             = errors.New("got invalid type in parameter")
+	ErrInvalidLength           = errors.New("parameter has invalid length value")
+	ErrTooShortToMarshalBinary = errors.New("insufficient buffer to serialize parameter to")
+	ErrTooShortToParse         = errors.New("too short to decode as parameter")
 )
 
 // Param is a M3UA Param.
@@ -147,7 +148,7 @@ func newNestedParam(t uint16, ps ...*Param) *Param {
 
 	for _, pr := range ps {
 		if pr != nil {
-			x, _ := pr.Serialize()
+			x, _ := pr.MarshalBinary()
 			p.Data = append(p.Data, x...)
 		}
 	}
@@ -187,37 +188,37 @@ func NewParam(tag int, data []byte) *Param {
 	return p
 }
 
-// Serialize creates the byte sequence generated from a M3UA Param instance.
-func (p *Param) Serialize() ([]byte, error) {
-	b := make([]byte, p.Len())
-	if err := p.SerializeTo(b); err != nil {
+// MarshalBinary creates the byte sequence generated from a M3UA Param instance.
+func (p *Param) MarshalBinary() ([]byte, error) {
+	b := make([]byte, p.MarshalLen())
+	if err := p.MarshalTo(b); err != nil {
 		return nil, err
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (p *Param) SerializeTo(b []byte) error {
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (p *Param) MarshalTo(b []byte) error {
 	binary.BigEndian.PutUint16(b[0:2], p.Tag)
 	binary.BigEndian.PutUint16(b[2:4], p.Length)
-	copy(b[4:p.Len()], p.Data)
+	copy(b[4:p.MarshalLen()], p.Data)
 	return nil
 }
 
-// Decode decodes given byte sequence as a M3UA Param.
-func Decode(b []byte) (*Param, error) {
+// Parse decodes given byte sequence as a M3UA Param.
+func Parse(b []byte) (*Param, error) {
 	p := &Param{}
-	if err := p.DecodeFromBytes(b); err != nil {
+	if err := p.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA Param.
-func (p *Param) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA Param.
+func (p *Param) UnmarshalBinary(b []byte) error {
 	l := len(b)
 	if l < 4 {
-		return ErrTooShortToDecode
+		return ErrTooShortToParse
 	}
 
 	p.Tag = binary.BigEndian.Uint16(b[0:2])
@@ -239,8 +240,8 @@ func (p *Param) Padding() int {
 	return 4 - x
 }
 
-// Len returns field length in integer.
-func (p *Param) Len() int {
+// MarshalLen returns serial length in integer.
+func (p *Param) MarshalLen() int {
 	return 4 + len(p.Data) + p.Padding()
 }
 
@@ -261,11 +262,11 @@ func (p *Param) String() string {
 	)
 }
 
-// SerializeMultiParams creates the byte sequence from multiple Param instances.
-func SerializeMultiParams(params []*Param) ([]byte, error) {
+// MarshalMultiParams creates the byte sequence from multiple Param instances.
+func MarshalMultiParams(params []*Param) ([]byte, error) {
 	var b []byte
 	for _, param := range params {
-		c, err := param.Serialize()
+		c, err := param.MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
@@ -274,19 +275,19 @@ func SerializeMultiParams(params []*Param) ([]byte, error) {
 	return b, nil
 }
 
-// DecodeMultiParams decodes multiple Params at a time.
+// ParseMultiParams decodes multiple Params at a time.
 //
 // This is easy and useful but slower than decoding one by one.
 // When you don't know the number of Params, this is the only way to decode them.
 // See benchmarks in diameter_test.go for the detail.
-func DecodeMultiParams(b []byte) ([]*Param, error) {
+func ParseMultiParams(b []byte) ([]*Param, error) {
 	var prms []*Param
 	for {
 		if len(b) == 0 {
 			break
 		}
 
-		p, err := Decode(b)
+		p, err := Parse(b)
 		if err != nil {
 			return nil, err
 		}
@@ -298,4 +299,64 @@ func DecodeMultiParams(b []byte) ([]*Param, error) {
 		b = b[int(p.Length)+p.Padding():]
 	}
 	return prms, nil
+}
+
+// Serialize returns the byte sequence generated from a Param.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (p *Param) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return p.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (p *Param) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return p.MarshalTo(b)
+}
+
+// Decode decodes given byte sequence as a Param.
+//
+// DEPRECATED: use Parse instead.
+func Decode(b []byte) (*Param, error) {
+	log.Println("DEPRECATED: use Parse instead")
+	return Parse(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (p *Param) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return p.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Param.
+//
+// DEPRECATED: use MarshalLen instead.
+func (p *Param) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return p.MarshalLen()
+}
+
+// SerializeMultiParams creates the byte sequence from multiple Param instances.
+//
+// DEPRECATED: use MarshalMultiParams instead.
+func SerializeMultiParams(params []*Param) ([]byte, error) {
+	log.Println("DEPRECATED: use MarshalMultiParams instead")
+	return MarshalMultiParams(params)
+}
+
+// DecodeMultiParams decodes multiple Params at a time.
+//
+// This is easy and useful but slower than decoding one by one.
+// When you don't know the number of Params, this is the only way to decode them.
+// See benchmarks in diameter_test.go for the detail.
+//
+// DEPRECATED: use ParseMultiParams instead.
+func DecodeMultiParams(b []byte) ([]*Param, error) {
+	log.Println("DEPRECATED: use ParseMultiParams instead")
+	return ParseMultiParams(b)
 }

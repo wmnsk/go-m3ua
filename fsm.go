@@ -220,8 +220,8 @@ func (c *Conn) monitor(ctx context.Context) {
 				}
 			}
 
-			// Decode the received packet as M3UA. Undecodable packets are ignored.
-			msg, err := messages.Decode(buf[:n])
+			// Parse the received packet as M3UA. Undecodable packets are ignored.
+			msg, err := messages.Parse(buf[:n])
 			if err != nil {
 				continue
 			}
