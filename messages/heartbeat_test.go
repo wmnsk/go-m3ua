@@ -27,7 +27,7 @@ func TestHeartbeat(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeHeartbeat(b)
+		v, err := ParseHeartbeat(b)
 		if err != nil {
 			return nil, err
 		}

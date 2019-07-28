@@ -137,7 +137,7 @@ func TestAspActive(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeAspActive(b)
+		v, err := ParseAspActive(b)
 		if err != nil {
 			return nil, err
 		}

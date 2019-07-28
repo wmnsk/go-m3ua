@@ -220,7 +220,7 @@ func TestParams(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run("encode/"+c.name, func(t *testing.T) {
-			got, err := c.structured.Serialize()
+			got, err := c.structured.MarshalBinary()
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -230,7 +230,7 @@ func TestParams(t *testing.T) {
 		})
 
 		t.Run("decode/"+c.name, func(t *testing.T) {
-			got, err := Decode(c.serialized)
+			got, err := Parse(c.serialized)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -242,7 +242,7 @@ func TestParams(t *testing.T) {
 
 }
 
-func TestDecodeMultiParams(t *testing.T) {
+func TestParseMultiParams(t *testing.T) {
 	cases := []struct {
 		name       string
 		structured []*Param
@@ -264,7 +264,7 @@ func TestDecodeMultiParams(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got, err := DecodeMultiParams(c.serialized)
+		got, err := ParseMultiParams(c.serialized)
 		if err != nil {
 			t.Fatal(err)
 		}

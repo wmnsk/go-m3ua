@@ -56,7 +56,7 @@ func (e *ErrUnsupportedClass) Error() string {
 }
 
 func (e *ErrUnsupportedClass) first40Octets() []byte {
-	b, err := e.Msg.Serialize()
+	b, err := e.Msg.MarshalBinary()
 	if err != nil {
 		return nil
 	}
@@ -84,7 +84,7 @@ func (e *ErrUnsupportedMessage) Error() string {
 }
 
 func (e *ErrUnsupportedMessage) first40Octets() []byte {
-	b, err := e.Msg.Serialize()
+	b, err := e.Msg.MarshalBinary()
 	if err != nil {
 		return nil
 	}

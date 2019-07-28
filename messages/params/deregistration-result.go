@@ -4,6 +4,8 @@
 
 package params
 
+import "log"
+
 // DeregResultPayload is the payload of DeregistrationResult.
 type DeregResultPayload struct {
 	RoutingContext, DeregistrationStatus *Param
@@ -33,25 +35,25 @@ func (p *Param) DeregistrationResult() (*DeregResultPayload, error) {
 		return nil, ErrInvalidType
 	}
 
-	d, err := DecodeDeregResultPayload(p.Data)
+	d, err := ParseDeregResultPayload(p.Data)
 	if err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeDeregResultPayload decodes given byte sequence as a DeregResultPayload.
-func DecodeDeregResultPayload(b []byte) (*DeregResultPayload, error) {
+// ParseDeregResultPayload decodes given byte sequence as a DeregResultPayload.
+func ParseDeregResultPayload(b []byte) (*DeregResultPayload, error) {
 	d := &DeregResultPayload{}
-	if err := d.DecodeFromBytes(b); err != nil {
+	if err := d.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return d, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
-func (d *DeregResultPayload) DecodeFromBytes(b []byte) error {
-	ps, err := DecodeMultiParams(b)
+// UnmarshalBinary sets the values retrieved from byte sequence in a Param.
+func (d *DeregResultPayload) UnmarshalBinary(b []byte) error {
+	ps, err := ParseMultiParams(b)
 	if err != nil {
 		return err
 	}
@@ -68,4 +70,20 @@ func (d *DeregResultPayload) DecodeFromBytes(b []byte) error {
 		}
 	}
 	return nil
+}
+
+// DecodeDeregResultPayload decodes given byte sequence as a DeregResultPayload.
+//
+// DEPRECATED: use ParseDeregResultPayload instead.
+func DecodeDeregResultPayload(b []byte) (*DeregResultPayload, error) {
+	log.Println("DEPRECATED: use ParseDeregResultPayload instead")
+	return ParseDeregResultPayload(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a Param.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (d *DeregResultPayload) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return d.UnmarshalBinary(b)
 }

@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -35,58 +36,58 @@ func NewAspUpAck(aspID, info *params.Param) *AspUpAck {
 	return a
 }
 
-// Serialize returns the byte sequence generated from a AspUpAck.
-func (a *AspUpAck) Serialize() ([]byte, error) {
-	b := make([]byte, a.Len())
-	if err := a.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a AspUpAck.
+func (a *AspUpAck) MarshalBinary() ([]byte, error) {
+	b := make([]byte, a.MarshalLen())
+	if err := a.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize AspUpAck")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (a *AspUpAck) SerializeTo(b []byte) error {
-	if len(b) < a.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (a *AspUpAck) MarshalTo(b []byte) error {
+	if len(b) < a.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	a.Header.Payload = make([]byte, a.Len()-8)
+	a.Header.Payload = make([]byte, a.MarshalLen()-8)
 
 	var offset = 0
-	if a.AspIdentifier != nil {
-		if err := a.AspIdentifier.SerializeTo(a.Header.Payload[offset:]); err != nil {
+	if param := a.AspIdentifier; param != nil {
+		if err := param.MarshalTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += a.AspIdentifier.Len()
+		offset += param.MarshalLen()
 	}
 
-	if a.InfoString != nil {
-		if err := a.InfoString.SerializeTo(a.Header.Payload[offset:]); err != nil {
+	if param := a.InfoString; param != nil {
+		if err := param.MarshalTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
 
-	return a.Header.SerializeTo(b)
+	return a.Header.MarshalTo(b)
 }
 
-// DecodeAspUpAck decodes given byte sequence as a AspUpAck.
-func DecodeAspUpAck(b []byte) (*AspUpAck, error) {
+// ParseAspUpAck decodes given byte sequence as a AspUpAck.
+func ParseAspUpAck(b []byte) (*AspUpAck, error) {
 	a := &AspUpAck{}
-	if err := a.DecodeFromBytes(b); err != nil {
+	if err := a.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (a *AspUpAck) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (a *AspUpAck) UnmarshalBinary(b []byte) error {
 	var err error
-	a.Header, err = DecodeHeader(b)
+	a.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(a.Header.Payload)
+	prs, err := params.ParseMultiParams(a.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -105,25 +106,25 @@ func (a *AspUpAck) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (a *AspUpAck) SetLength() {
-	if a.AspIdentifier != nil {
-		a.AspIdentifier.SetLength()
+	if param := a.AspIdentifier; param != nil {
+		param.SetLength()
 	}
-	if a.InfoString != nil {
-		a.InfoString.SetLength()
+	if param := a.InfoString; param != nil {
+		param.SetLength()
 	}
 
 	a.Header.SetLength()
-	a.Header.Length += uint32(a.Len())
+	a.Header.Length += uint32(a.MarshalLen())
 }
 
-// Len returns the actual length of AspUpAck.
-func (a *AspUpAck) Len() int {
+// MarshalLen returns the serial length of AspUpAck.
+func (a *AspUpAck) MarshalLen() int {
 	l := 8
-	if a.AspIdentifier != nil {
-		l += a.AspIdentifier.Len()
+	if param := a.AspIdentifier; param != nil {
+		l += param.MarshalLen()
 	}
-	if a.InfoString != nil {
-		l += a.InfoString.Len()
+	if param := a.InfoString; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -160,4 +161,44 @@ func (a *AspUpAck) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (a *AspUpAck) MessageTypeName() string {
 	return "ASP Up Ack"
+}
+
+// Serialize returns the byte sequence generated from a AspUpAck.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (a *AspUpAck) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return a.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (a *AspUpAck) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return a.MarshalTo(b)
+}
+
+// DecodeAspUpAck decodes given byte sequence as a AspUpAck.
+//
+// DEPRECATED: use ParseAspUpAck instead.
+func DecodeAspUpAck(b []byte) (*AspUpAck, error) {
+	log.Println("DEPRECATED: use ParseAspUpAck instead")
+	return ParseAspUpAck(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (a *AspUpAck) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return a.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of AspUpAck.
+//
+// DEPRECATED: use MarshalLen instead.
+func (a *AspUpAck) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return a.MarshalLen()
 }

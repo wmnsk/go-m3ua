@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -39,22 +40,22 @@ func NewNotify(status, aspID, rtCtx, info *params.Param) *Notify {
 	return n
 }
 
-// Serialize returns the byte sequence generated from a Notify.
-func (n *Notify) Serialize() ([]byte, error) {
-	b := make([]byte, n.Len())
-	if err := n.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Notify.
+func (n *Notify) MarshalBinary() ([]byte, error) {
+	b := make([]byte, n.MarshalLen())
+	if err := n.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize Notify")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (n *Notify) SerializeTo(b []byte) error {
-	if len(b) < n.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (n *Notify) MarshalTo(b []byte) error {
+	if len(b) < n.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	n.Header.Payload = make([]byte, n.Len()-8)
+	n.Header.Payload = make([]byte, n.MarshalLen()-8)
 
 	var offset = 0
 
@@ -65,54 +66,54 @@ func (n *Notify) SerializeTo(b []byte) error {
 	// However, this library aims to be flexible using and/or verifying,
 	// so it doesn't check the existence of the parameter for now.
 	// Discussion: https://github.com/wmnsk/go-m3ua/pull/10#discussion_r304225571
-	if n.Status != nil {
-		if err := n.Status.SerializeTo(n.Header.Payload[offset:]); err != nil {
+	if param := n.Status; param != nil {
+		if err := param.MarshalTo(n.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += n.Status.Len()
+		offset += param.MarshalLen()
 	}
 
-	if n.AspIdentifier != nil {
-		if err := n.AspIdentifier.SerializeTo(n.Header.Payload[offset:]); err != nil {
+	if param := n.AspIdentifier; param != nil {
+		if err := param.MarshalTo(n.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += n.AspIdentifier.Len()
+		offset += param.MarshalLen()
 	}
 
-	if n.RoutingContext != nil {
-		if err := n.RoutingContext.SerializeTo(n.Header.Payload[offset:]); err != nil {
+	if param := n.RoutingContext; param != nil {
+		if err := param.MarshalTo(n.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += n.RoutingContext.Len()
+		offset += param.MarshalLen()
 	}
 
-	if n.InfoString != nil {
-		if err := n.InfoString.SerializeTo(n.Header.Payload[offset:]); err != nil {
+	if param := n.InfoString; param != nil {
+		if err := param.MarshalTo(n.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
 
-	return n.Header.SerializeTo(b)
+	return n.Header.MarshalTo(b)
 }
 
-// DecodeNotify decodes given byte sequence as a Notify.
-func DecodeNotify(b []byte) (*Notify, error) {
+// ParseNotify decodes given byte sequence as a Notify.
+func ParseNotify(b []byte) (*Notify, error) {
 	n := &Notify{}
-	if err := n.DecodeFromBytes(b); err != nil {
+	if err := n.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return n, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (n *Notify) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (n *Notify) UnmarshalBinary(b []byte) error {
 	var err error
-	n.Header, err = DecodeHeader(b)
+	n.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(n.Header.Payload)
+	prs, err := params.ParseMultiParams(n.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -135,38 +136,38 @@ func (n *Notify) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (n *Notify) SetLength() {
-	if n.Status != nil {
-		n.Status.SetLength()
+	if param := n.Status; param != nil {
+		param.SetLength()
 	}
-	if n.AspIdentifier != nil {
-		n.AspIdentifier.SetLength()
+	if param := n.AspIdentifier; param != nil {
+		param.SetLength()
 	}
-	if n.RoutingContext != nil {
-		n.RoutingContext.SetLength()
+	if param := n.RoutingContext; param != nil {
+		param.SetLength()
 	}
-	if n.InfoString != nil {
-		n.InfoString.SetLength()
+	if param := n.InfoString; param != nil {
+		param.SetLength()
 	}
 
 	n.Header.SetLength()
-	n.Header.Length += uint32(n.Len())
+	n.Header.Length += uint32(n.MarshalLen())
 }
 
-// Len returns the actual length of Notify.
-func (n *Notify) Len() int {
+// MarshalLen returns the serial length of Notify.
+func (n *Notify) MarshalLen() int {
 	l := 8
 
-	if n.Status != nil {
-		l += n.Status.Len()
+	if param := n.Status; param != nil {
+		l += param.MarshalLen()
 	}
-	if n.AspIdentifier != nil {
-		l += n.AspIdentifier.Len()
+	if param := n.AspIdentifier; param != nil {
+		l += param.MarshalLen()
 	}
-	if n.RoutingContext != nil {
-		l += n.RoutingContext.Len()
+	if param := n.RoutingContext; param != nil {
+		l += param.MarshalLen()
 	}
-	if n.InfoString != nil {
-		l += n.InfoString.Len()
+	if param := n.InfoString; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -205,4 +206,44 @@ func (n *Notify) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (n *Notify) MessageTypeName() string {
 	return "Notify"
+}
+
+// Serialize returns the byte sequence generated from a Notify.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (n *Notify) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return n.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (n *Notify) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return n.MarshalTo(b)
+}
+
+// DecodeNotify decodes given byte sequence as a Notify.
+//
+// DEPRECATED: use ParseNotify instead.
+func DecodeNotify(b []byte) (*Notify, error) {
+	log.Println("DEPRECATED: use ParseNotify instead")
+	return ParseNotify(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (n *Notify) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return n.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Notify.
+//
+// DEPRECATED: use MarshalLen instead.
+func (n *Notify) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return n.MarshalLen()
 }

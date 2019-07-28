@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -34,50 +35,50 @@ func NewHeartbeat(hbData *params.Param) *Heartbeat {
 	return h
 }
 
-// Serialize returns the byte sequence generated from a Heartbeat.
-func (h *Heartbeat) Serialize() ([]byte, error) {
-	b := make([]byte, h.Len())
-	if err := h.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Heartbeat.
+func (h *Heartbeat) MarshalBinary() ([]byte, error) {
+	b := make([]byte, h.MarshalLen())
+	if err := h.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize Heartbeat")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (h *Heartbeat) SerializeTo(b []byte) error {
-	if len(b) < h.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (h *Heartbeat) MarshalTo(b []byte) error {
+	if len(b) < h.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	h.Header.Payload = make([]byte, h.Len()-8)
+	h.Header.Payload = make([]byte, h.MarshalLen()-8)
 
-	if h.HeartbeatData != nil {
-		if err := h.HeartbeatData.SerializeTo(h.Header.Payload); err != nil {
+	if param := h.HeartbeatData; param != nil {
+		if err := param.MarshalTo(h.Header.Payload); err != nil {
 			return err
 		}
 	}
 
-	return h.Header.SerializeTo(b)
+	return h.Header.MarshalTo(b)
 }
 
-// DecodeHeartbeat decodes given byte sequence as a Heartbeat.
-func DecodeHeartbeat(b []byte) (*Heartbeat, error) {
+// ParseHeartbeat decodes given byte sequence as a Heartbeat.
+func ParseHeartbeat(b []byte) (*Heartbeat, error) {
 	h := &Heartbeat{}
-	if err := h.DecodeFromBytes(b); err != nil {
+	if err := h.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return h, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (h *Heartbeat) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (h *Heartbeat) UnmarshalBinary(b []byte) error {
 	var err error
-	h.Header, err = DecodeHeader(b)
+	h.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(h.Header.Payload)
+	prs, err := params.ParseMultiParams(h.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -94,19 +95,19 @@ func (h *Heartbeat) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (h *Heartbeat) SetLength() {
-	if h.HeartbeatData != nil {
-		h.HeartbeatData.SetLength()
+	if param := h.HeartbeatData; param != nil {
+		param.SetLength()
 	}
 
 	h.Header.SetLength()
-	h.Header.Length += uint32(h.Len())
+	h.Header.Length += uint32(h.MarshalLen())
 }
 
-// Len returns the actual length of Heartbeat.
-func (h *Heartbeat) Len() int {
+// MarshalLen returns the serial length of Heartbeat.
+func (h *Heartbeat) MarshalLen() int {
 	l := 8
-	if h.HeartbeatData != nil {
-		l += h.HeartbeatData.Len()
+	if param := h.HeartbeatData; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -142,4 +143,44 @@ func (h *Heartbeat) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (h *Heartbeat) MessageTypeName() string {
 	return "Heartbeat"
+}
+
+// Serialize returns the byte sequence generated from a Heartbeat.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (h *Heartbeat) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return h.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (h *Heartbeat) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return h.MarshalTo(b)
+}
+
+// DecodeHeartbeat decodes given byte sequence as a Heartbeat.
+//
+// DEPRECATED: use ParseHeartbeat instead.
+func DecodeHeartbeat(b []byte) (*Heartbeat, error) {
+	log.Println("DEPRECATED: use ParseHeartbeat instead")
+	return ParseHeartbeat(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (h *Heartbeat) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return h.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Heartbeat.
+//
+// DEPRECATED: use MarshalLen instead.
+func (h *Heartbeat) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return h.MarshalLen()
 }

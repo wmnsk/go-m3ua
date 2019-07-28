@@ -60,7 +60,7 @@ func TestAspUp(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeAspUp(b)
+		v, err := ParseAspUp(b)
 		if err != nil {
 			return nil, err
 		}

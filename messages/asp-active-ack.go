@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -37,65 +38,65 @@ func NewAspActiveAck(tmt, rtCtx, info *params.Param) *AspActiveAck {
 	return a
 }
 
-// Serialize returns the byte sequence generated from a AspActiveAck.
-func (a *AspActiveAck) Serialize() ([]byte, error) {
-	b := make([]byte, a.Len())
-	if err := a.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a AspActiveAck.
+func (a *AspActiveAck) MarshalBinary() ([]byte, error) {
+	b := make([]byte, a.MarshalLen())
+	if err := a.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize AspActiveAck")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (a *AspActiveAck) SerializeTo(b []byte) error {
-	if len(b) < a.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (a *AspActiveAck) MarshalTo(b []byte) error {
+	if len(b) < a.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	a.Header.Payload = make([]byte, a.Len()-8)
+	a.Header.Payload = make([]byte, a.MarshalLen()-8)
 
 	var offset = 0
-	if a.TrafficModeType != nil {
-		if err := a.TrafficModeType.SerializeTo(a.Header.Payload[offset:]); err != nil {
+	if param := a.TrafficModeType; param != nil {
+		if err := param.MarshalTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += a.TrafficModeType.Len()
+		offset += param.MarshalLen()
 	}
 
-	if a.RoutingContext != nil {
-		if err := a.RoutingContext.SerializeTo(a.Header.Payload[offset:]); err != nil {
+	if param := a.RoutingContext; param != nil {
+		if err := param.MarshalTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += a.RoutingContext.Len()
+		offset += param.MarshalLen()
 	}
 
-	if a.InfoString != nil {
-		if err := a.InfoString.SerializeTo(a.Header.Payload[offset:]); err != nil {
+	if param := a.InfoString; param != nil {
+		if err := param.MarshalTo(a.Header.Payload[offset:]); err != nil {
 			return err
 		}
 	}
 
-	return a.Header.SerializeTo(b)
+	return a.Header.MarshalTo(b)
 }
 
-// DecodeAspActiveAck decodes given byte sequence as a AspActiveAck.
-func DecodeAspActiveAck(b []byte) (*AspActiveAck, error) {
+// ParseAspActiveAck decodes given byte sequence as a AspActiveAck.
+func ParseAspActiveAck(b []byte) (*AspActiveAck, error) {
 	a := &AspActiveAck{}
-	if err := a.DecodeFromBytes(b); err != nil {
+	if err := a.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return a, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (a *AspActiveAck) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (a *AspActiveAck) UnmarshalBinary(b []byte) error {
 	var err error
-	a.Header, err = DecodeHeader(b)
+	a.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(a.Header.Payload)
+	prs, err := params.ParseMultiParams(a.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -116,31 +117,31 @@ func (a *AspActiveAck) DecodeFromBytes(b []byte) error {
 
 // SetLength sets the length in Length field.
 func (a *AspActiveAck) SetLength() {
-	if a.TrafficModeType != nil {
-		a.TrafficModeType.SetLength()
+	if param := a.TrafficModeType; param != nil {
+		param.SetLength()
 	}
-	if a.RoutingContext != nil {
-		a.RoutingContext.SetLength()
+	if param := a.RoutingContext; param != nil {
+		param.SetLength()
 	}
-	if a.InfoString != nil {
-		a.InfoString.SetLength()
+	if param := a.InfoString; param != nil {
+		param.SetLength()
 	}
 
 	a.Header.SetLength()
-	a.Header.Length += uint32(a.Len())
+	a.Header.Length += uint32(a.MarshalLen())
 }
 
-// Len returns the actual length of AspActiveAck.
-func (a *AspActiveAck) Len() int {
+// MarshalLen returns the serial length of AspActiveAck.
+func (a *AspActiveAck) MarshalLen() int {
 	l := 8
-	if a.TrafficModeType != nil {
-		l += a.TrafficModeType.Len()
+	if param := a.TrafficModeType; param != nil {
+		l += param.MarshalLen()
 	}
-	if a.RoutingContext != nil {
-		l += a.RoutingContext.Len()
+	if param := a.RoutingContext; param != nil {
+		l += param.MarshalLen()
 	}
-	if a.InfoString != nil {
-		l += a.InfoString.Len()
+	if param := a.InfoString; param != nil {
+		l += param.MarshalLen()
 	}
 	return l
 }
@@ -178,4 +179,44 @@ func (a *AspActiveAck) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (a *AspActiveAck) MessageTypeName() string {
 	return "ASP Active Ack"
+}
+
+// Serialize returns the byte sequence generated from a AspActiveAck.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (a *AspActiveAck) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return a.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (a *AspActiveAck) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return a.MarshalTo(b)
+}
+
+// DecodeAspActiveAck decodes given byte sequence as a AspActiveAck.
+//
+// DEPRECATED: use ParseAspActiveAck instead.
+func DecodeAspActiveAck(b []byte) (*AspActiveAck, error) {
+	log.Println("DEPRECATED: use ParseAspActiveAck instead")
+	return ParseAspActiveAck(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (a *AspActiveAck) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return a.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of AspActiveAck.
+//
+// DEPRECATED: use MarshalLen instead.
+func (a *AspActiveAck) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return a.MarshalLen()
 }

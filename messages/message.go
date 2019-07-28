@@ -4,7 +4,11 @@
 
 package messages
 
-import "github.com/pkg/errors"
+import (
+	"log"
+
+	"github.com/pkg/errors"
+)
 
 // Message Class definitions.
 const (
@@ -74,10 +78,10 @@ const (
 
 // M3UA is an interface that defines M3UA messages.
 type M3UA interface {
-	Serialize() ([]byte, error)
-	SerializeTo([]byte) error
-	DecodeFromBytes([]byte) error
-	Len() int
+	MarshalBinary() ([]byte, error)
+	MarshalTo([]byte) error
+	UnmarshalBinary([]byte) error
+	MarshalLen() int
 	Version() uint8
 	MessageClass() uint8
 	MessageType() uint8
@@ -85,22 +89,22 @@ type M3UA interface {
 	MessageTypeName() string
 }
 
-// Serialize returns the byte sequence generated from a M3UA instance.
-// Better to use SerializeXxx instead if you know the type of data to be serialized.
-func Serialize(m M3UA) ([]byte, error) {
-	b := make([]byte, m.Len())
-	if err := m.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a M3UA instance.
+// Better to use MarshalBinaryXxx instead if you know the type of data to be serialized.
+func MarshalBinary(m M3UA) ([]byte, error) {
+	b := make([]byte, m.MarshalLen())
+	if err := m.MarshalTo(b); err != nil {
 		return nil, err
 	}
 
 	return b, nil
 }
 
-// Decode decodes the given bytes.
+// Parse decodes the given bytes.
 // This function checks the Message Class and Message Type and chooses the appropriate type.
-func Decode(b []byte) (M3UA, error) {
+func Parse(b []byte) (M3UA, error) {
 	if len(b) < 4 {
-		return nil, ErrTooShortToDecode
+		return nil, ErrTooShortToParse
 	}
 	var m M3UA
 	combine := func(c, t uint8) uint16 {
@@ -151,15 +155,24 @@ func Decode(b []byte) (M3UA, error) {
 		m = &Generic{}
 	}
 
-	if err := m.DecodeFromBytes(b); err != nil {
+	if err := m.UnmarshalBinary(b); err != nil {
 		return nil, errors.Wrap(err, "failed to decode M3UA")
 	}
 	return m, nil
 }
 
+// Decode decodes the given bytes.
+// This function checks the Message Class and Message Type and chooses the appropriate type.
+//
+// DEPRECATED: use Parse instead.
+func Decode(b []byte) (M3UA, error) {
+	log.Println("DEPRECATED: use Parse instead")
+	return Parse(b)
+}
+
 // Error definitions.
 var (
-	ErrTooShortToSerialize = errors.New("insufficient buffer to serialize M3UA to")
-	ErrTooShortToDecode    = errors.New("too short to decode as M3UA")
-	ErrInvalidParameter    = errors.New("got invalid parameter inside a message")
+	ErrTooShortToMarshalBinary = errors.New("insufficient buffer to serialize M3UA to")
+	ErrTooShortToParse         = errors.New("too short to decode as M3UA")
+	ErrInvalidParameter        = errors.New("got invalid parameter inside a message")
 )

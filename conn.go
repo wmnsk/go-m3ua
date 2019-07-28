@@ -92,7 +92,7 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
 			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b,
 		), c.cfg.CorrelationID,
-	).Serialize()
+	).MarshalBinary()
 	if err != nil {
 		return 0, err
 	}
@@ -108,9 +108,9 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 
 // WriteSignal writes any type of M3UA signals on top of SCTP Connection.
 func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
-	n = m3.Len()
+	n = m3.MarshalLen()
 	buf := make([]byte, n)
-	if err := m3.SerializeTo(buf); err != nil {
+	if err := m3.MarshalTo(buf); err != nil {
 		return 0, fmt.Errorf("failed to create %T: %s", m3, err)
 	}
 

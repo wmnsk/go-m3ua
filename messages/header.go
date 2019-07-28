@@ -7,6 +7,7 @@ package messages
 import (
 	"encoding/binary"
 	"fmt"
+	"log"
 )
 
 // Header is a M3UA common header.
@@ -33,20 +34,20 @@ func NewHeader(version, class, mtype uint8, payload []byte) *Header {
 	return h
 }
 
-// Serialize returns the byte sequence generated from a Header instance.
-func (h *Header) Serialize() ([]byte, error) {
-	b := make([]byte, h.Len())
-	if err := h.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Header instance.
+func (h *Header) MarshalBinary() ([]byte, error) {
+	b := make([]byte, h.MarshalLen())
+	if err := h.MarshalTo(b); err != nil {
 		return nil, err
 	}
 
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (h *Header) SerializeTo(b []byte) error {
-	if len(b) < h.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (h *Header) MarshalTo(b []byte) error {
+	if len(b) < h.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
 	b[0] = h.Version
@@ -54,26 +55,26 @@ func (h *Header) SerializeTo(b []byte) error {
 	b[2] = h.Class
 	b[3] = h.Type
 	binary.BigEndian.PutUint32(b[4:8], h.Length)
-	copy(b[8:h.Len()], h.Payload)
+	copy(b[8:h.MarshalLen()], h.Payload)
 
 	return nil
 }
 
-// DecodeHeader decodes given byte sequence as a M3UA common header.
-func DecodeHeader(b []byte) (*Header, error) {
+// ParseHeader decodes given byte sequence as a M3UA common header.
+func ParseHeader(b []byte) (*Header, error) {
 	h := &Header{}
-	if err := h.DecodeFromBytes(b); err != nil {
+	if err := h.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 
 	return h, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (h *Header) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (h *Header) UnmarshalBinary(b []byte) error {
 	l := len(b)
 	if l < 8 {
-		return ErrTooShortToDecode
+		return ErrTooShortToParse
 	}
 	h.Version = b[0]
 	h.Reserved = b[1]
@@ -85,8 +86,8 @@ func (h *Header) DecodeFromBytes(b []byte) error {
 	return nil
 }
 
-// Len returns the actual length of Header.
-func (h *Header) Len() int {
+// MarshalLen returns the serial length of Header.
+func (h *Header) MarshalLen() int {
 	return 8 + len(h.Payload)
 }
 
@@ -105,4 +106,44 @@ func (h *Header) String() string {
 		h.Length,
 		h.Payload,
 	)
+}
+
+// Serialize returns the byte sequence generated from a Header.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (h *Header) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return h.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (h *Header) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return h.MarshalTo(b)
+}
+
+// DecodeHeader decodes given byte sequence as a Header.
+//
+// DEPRECATED: use ParseHeader instead.
+func DecodeHeader(b []byte) (*Header, error) {
+	log.Println("DEPRECATED: use ParseHeader instead")
+	return ParseHeader(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (h *Header) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return h.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Header.
+//
+// DEPRECATED: use MarshalLen instead.
+func (h *Header) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return h.MarshalLen()
 }

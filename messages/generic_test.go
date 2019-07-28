@@ -35,7 +35,7 @@ func TestGeneric(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeGeneric(b)
+		v, err := ParseGeneric(b)
 		if err != nil {
 			return nil, err
 		}

@@ -36,7 +36,7 @@ func TestDestinationUnavailable(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeDestinationUnavailable(b)
+		v, err := ParseDestinationUnavailable(b)
 		if err != nil {
 			return nil, err
 		}

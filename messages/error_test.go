@@ -48,7 +48,7 @@ func TestError(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeError(b)
+		v, err := ParseError(b)
 		if err != nil {
 			return nil, err
 		}

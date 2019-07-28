@@ -162,7 +162,7 @@ func TestNotify(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeNotify(b)
+		v, err := ParseNotify(b)
 		if err != nil {
 			return nil, err
 		}

@@ -36,7 +36,7 @@ func TestDestinationStateAudit(t *testing.T) {
 	}
 
 	runTests(t, cases, func(b []byte) (serializeable, error) {
-		v, err := DecodeDestinationStateAudit(b)
+		v, err := ParseDestinationStateAudit(b)
 		if err != nil {
 			return nil, err
 		}

@@ -6,6 +6,7 @@ package messages
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -13,7 +14,7 @@ import (
 
 // Generic is generic structure of M3UA.
 // This is used when
-//   - Decode() method does not understand the class & type of M3UA message.
+//   - Parse() method does not understand the class & type of M3UA message.
 //   - users manually create this for the specific purpose.
 type Generic struct {
 	*Header
@@ -36,52 +37,52 @@ func New(ver, mcls, mtype uint8, params ...*params.Param) *Generic {
 	return g
 }
 
-// Serialize returns the byte sequence generated from a Generic.
-func (g *Generic) Serialize() ([]byte, error) {
-	b := make([]byte, g.Len())
-	if err := g.SerializeTo(b); err != nil {
+// MarshalBinary returns the byte sequence generated from a Generic.
+func (g *Generic) MarshalBinary() ([]byte, error) {
+	b := make([]byte, g.MarshalLen())
+	if err := g.MarshalTo(b); err != nil {
 		return nil, errors.Wrap(err, "failed to serialize Generic")
 	}
 	return b, nil
 }
 
-// SerializeTo puts the byte sequence in the byte array given as b.
-func (g *Generic) SerializeTo(b []byte) error {
-	if len(b) < g.Len() {
-		return ErrTooShortToSerialize
+// MarshalTo puts the byte sequence in the byte array given as b.
+func (g *Generic) MarshalTo(b []byte) error {
+	if len(b) < g.MarshalLen() {
+		return ErrTooShortToMarshalBinary
 	}
 
-	g.Header.Payload = make([]byte, g.Len()-8)
+	g.Header.Payload = make([]byte, g.MarshalLen()-8)
 
 	var offset = 0
 	for _, pr := range g.Params {
-		if err := pr.SerializeTo(g.Header.Payload[offset:]); err != nil {
+		if err := pr.MarshalTo(g.Header.Payload[offset:]); err != nil {
 			return err
 		}
-		offset += pr.Len()
+		offset += pr.MarshalLen()
 	}
 
-	return g.Header.SerializeTo(b)
+	return g.Header.MarshalTo(b)
 }
 
-// DecodeGeneric decodes given byte sequence as a M3UA Generic message.
-func DecodeGeneric(b []byte) (*Generic, error) {
+// ParseGeneric decodes given byte sequence as a M3UA Generic message.
+func ParseGeneric(b []byte) (*Generic, error) {
 	g := &Generic{}
-	if err := g.DecodeFromBytes(b); err != nil {
+	if err := g.UnmarshalBinary(b); err != nil {
 		return nil, err
 	}
 	return g, nil
 }
 
-// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
-func (g *Generic) DecodeFromBytes(b []byte) error {
+// UnmarshalBinary sets the values retrieved from byte sequence in a M3UA common header.
+func (g *Generic) UnmarshalBinary(b []byte) error {
 	var err error
-	g.Header, err = DecodeHeader(b)
+	g.Header, err = ParseHeader(b)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Header")
 	}
 
-	prs, err := params.DecodeMultiParams(g.Header.Payload)
+	prs, err := params.ParseMultiParams(g.Header.Payload)
 	if err != nil {
 		return errors.Wrap(err, "failed to decode Params")
 	}
@@ -89,11 +90,11 @@ func (g *Generic) DecodeFromBytes(b []byte) error {
 	return nil
 }
 
-// Len returns the actual length of Data.
-func (g *Generic) Len() int {
+// MarshalLen returns the serial length of Data.
+func (g *Generic) MarshalLen() int {
 	l := 8
 	for _, pr := range g.Params {
-		l += pr.Len()
+		l += pr.MarshalLen()
 	}
 	return l
 }
@@ -142,4 +143,44 @@ func (g *Generic) MessageClassName() string {
 // MessageTypeName returns the name of message type.
 func (g *Generic) MessageTypeName() string {
 	return "Unknown"
+}
+
+// Serialize returns the byte sequence generated from a Generic.
+//
+// DEPRECATED: use MarshalBinary instead.
+func (g *Generic) Serialize() ([]byte, error) {
+	log.Println("DEPRECATED: MarshalBinary instead")
+	return g.MarshalBinary()
+}
+
+// SerializeTo puts the byte sequence in the byte array given as b.
+//
+// DEPRECATED: use MarshalTo instead.
+func (g *Generic) SerializeTo(b []byte) error {
+	log.Println("DEPRECATED: MarshalTo instead")
+	return g.MarshalTo(b)
+}
+
+// DecodeGeneric decodes given byte sequence as a Generic.
+//
+// DEPRECATED: use ParseGeneric instead.
+func DecodeGeneric(b []byte) (*Generic, error) {
+	log.Println("DEPRECATED: use ParseGeneric instead")
+	return ParseGeneric(b)
+}
+
+// DecodeFromBytes sets the values retrieved from byte sequence in a M3UA common header.
+//
+// DEPRECATED: use UnmarshalBinary instead.
+func (g *Generic) DecodeFromBytes(b []byte) error {
+	log.Println("DEPRECATED: use UnmarshalBinary instead")
+	return g.UnmarshalBinary(b)
+}
+
+// Len returns the serial length of Generic.
+//
+// DEPRECATED: use MarshalLen instead.
+func (g *Generic) Len() int {
+	log.Println("DEPRECATED: use MarshalLen instead")
+	return g.MarshalLen()
 }
