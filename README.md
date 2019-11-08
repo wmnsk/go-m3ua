@@ -120,9 +120,9 @@ See [example/server directory](./examples/server) for server example.
 | SSNM     | Destination Unavailable (DUNA)                  | Yes       | [RFC4666#3.4](https://tools.ietf.org/html/rfc4666#section-3.4) |
 |          | Destination Available (DAVA)                    | Yes       |                                                                |
 |          | Destination State Audit (DAUD)                  | Yes       |                                                                |
-|          | Signalling Congestion (SCON)                    |           |                                                                |
-|          | Destination User Part Unavailable (DUPU)        |           |                                                                |
-|          | Destination Restricted (DRST)                   |           |                                                                |
+|          | Signalling Congestion (SCON)                    | Yes       |                                                                |
+|          | Destination User Part Unavailable (DUPU)        | Yes       |                                                                |
+|          | Destination Restricted (DRST)                   | Yes       |                                                                |
 | ASPSM    | ASP Up                                          | Yes       | [RFC4666#3.5](https://tools.ietf.org/html/rfc4666#section-3.5) |
 |          | ASP Up Acknowledgement (ASP Up Ack)             | Yes       |                                                                |
 |          | ASP Down                                        | Yes       |                                                                |
