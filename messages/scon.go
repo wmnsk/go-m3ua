@@ -12,6 +12,8 @@ import (
 )
 
 // SignallingCongestion is a SignallingCongestion type of M3UA message.
+//
+// Spec: 3.4.4, RFC4666.
 type SignallingCongestion struct {
 	*Header
 	NetworkAppearance     *params.Param
@@ -221,7 +223,7 @@ func (s *SignallingCongestion) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (s *SignallingCongestion) MessageClassName() string {
-	return "SCON"
+	return "Signalling Congestion"
 }
 
 // MessageTypeName returns the name of message type.
