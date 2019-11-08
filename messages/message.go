@@ -123,6 +123,8 @@ func Parse(b []byte) (M3UA, error) {
 		m = &DestinationAvailable{}
 	case combine(MsgClassSSNM, MsgTypeDestinationStateAudit):
 		m = &DestinationStateAudit{}
+	case combine(MsgClassSSNM, MsgTypeSignallingCongestion):
+		m = &SignallingCongestion{}
 		// ASPSM Messages
 	case combine(MsgClassASPSM, MsgTypeAspUp):
 		m = &AspUp{}
