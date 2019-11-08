@@ -13,6 +13,8 @@ import (
 )
 
 // Heartbeat is a Heartbeat type of M3UA message.
+//
+// Spec: 3.5.5, RFC4666.
 type Heartbeat struct {
 	*Header
 	AspIdentifier *params.Param

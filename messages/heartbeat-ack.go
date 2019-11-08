@@ -13,6 +13,8 @@ import (
 )
 
 // HeartbeatAck is a HeartbeatAck type of M3UA message.
+//
+// Spec: 3.5.6, RFC4666.
 type HeartbeatAck struct {
 	*Header
 	AspIdentifier *params.Param

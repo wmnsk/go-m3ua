@@ -13,6 +13,8 @@ import (
 )
 
 // AspInactiveAck is a AspInactiveAck type of M3UA message.
+//
+// Spec: 3.7.4, RFC4666.
 type AspInactiveAck struct {
 	*Header
 	RoutingContext *params.Param

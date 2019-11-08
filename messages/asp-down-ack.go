@@ -13,6 +13,8 @@ import (
 )
 
 // AspDownAck is a AspDownAck type of M3UA message.
+//
+// Spec: 3.5.4, RFC4666.
 type AspDownAck struct {
 	*Header
 	AspIdentifier *params.Param

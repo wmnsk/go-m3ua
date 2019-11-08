@@ -13,6 +13,8 @@ import (
 )
 
 // AspActiveAck is a AspActiveAck type of M3UA message.
+//
+// Spec: 3.7.2, RFC4666.
 type AspActiveAck struct {
 	*Header
 	TrafficModeType *params.Param

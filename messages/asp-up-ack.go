@@ -13,6 +13,8 @@ import (
 )
 
 // AspUpAck is a AspUpAck type of M3UA message.
+//
+// Spec: 3.5.2, RFC4666.
 type AspUpAck struct {
 	*Header
 	AspIdentifier *params.Param
