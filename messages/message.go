@@ -127,6 +127,8 @@ func Parse(b []byte) (M3UA, error) {
 		m = &SignallingCongestion{}
 	case combine(MsgClassSSNM, MsgTypeDestinationUserPartUnavailable):
 		m = &DestinationUserPartUnavailable{}
+	case combine(MsgClassSSNM, MsgTypeDestinationRestricted):
+		m = &DestinationRestricted{}
 		// ASPSM Messages
 	case combine(MsgClassASPSM, MsgTypeAspUp):
 		m = &AspUp{}
