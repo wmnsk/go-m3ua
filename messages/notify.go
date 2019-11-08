@@ -13,6 +13,8 @@ import (
 )
 
 // Notify is a Notify type of M3UA message.
+//
+// Spec: 3.8.2, RFC4666.
 type Notify struct {
 	*Header
 	Status         *params.Param

@@ -13,6 +13,8 @@ import (
 )
 
 // AspUp is a AspUp type of M3UA message.
+//
+// Spec: 3.5.1, RFC4666.
 type AspUp struct {
 	*Header
 	AspIdentifier *params.Param

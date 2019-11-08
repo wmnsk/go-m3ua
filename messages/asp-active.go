@@ -13,6 +13,8 @@ import (
 )
 
 // AspActive is a AspActive type of M3UA message.
+//
+// Spec: 3.7.1, RFC4666.
 type AspActive struct {
 	*Header
 	TrafficModeType *params.Param

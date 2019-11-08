@@ -13,6 +13,8 @@ import (
 )
 
 // AspInactive is a AspInactive type of M3UA message.
+//
+// Spec: 3.7.3, RFC4666.
 type AspInactive struct {
 	*Header
 	RoutingContext *params.Param

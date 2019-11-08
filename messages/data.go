@@ -13,6 +13,8 @@ import (
 )
 
 // Data is a PayloadData type of M3UA message.
+//
+// Spec: 3.3.1, RFC4666.
 type Data struct {
 	*Header
 	NetworkAppearance *params.Param

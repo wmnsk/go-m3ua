@@ -13,6 +13,8 @@ import (
 )
 
 // AspDown is a AspDown type of M3UA message.
+//
+// Spec: 3.5.3, RFC4666.
 type AspDown struct {
 	*Header
 	AspIdentifier *params.Param

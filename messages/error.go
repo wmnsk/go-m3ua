@@ -13,6 +13,8 @@ import (
 )
 
 // Error is a Error type of M3UA message.
+//
+// Spec: 3.8.1, RFC4666.
 type Error struct {
 	*Header
 	ErrorCode             *params.Param
