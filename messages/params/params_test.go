@@ -273,3 +273,24 @@ func TestParseMultiParams(t *testing.T) {
 		}
 	}
 }
+
+func TestParseMalformed(t *testing.T) {
+	cases := []struct {
+		data []byte
+		err  error
+	}{
+		{[]byte{0x00}, ErrTooShortToParse},
+		{[]byte{0x00, 0x00}, ErrTooShortToParse},
+		{[]byte{0x00, 0x00, 0x00}, ErrTooShortToParse},
+		{[]byte{0x00, 0x00, 0x00, 0x00}, ErrInvalidLength},
+	}
+
+	for _, c := range cases {
+		if _, err := Parse(c.data); err != c.err {
+			t.Errorf("Parse/unexpected error: got: %v, want: %v", err, c.err)
+		}
+		if _, err := ParseMultiParams(c.data); err != c.err {
+			t.Errorf("ParseMulti/unexpected error: got: %v, want: %v", err, c.err)
+		}
+	}
+}
