@@ -223,7 +223,7 @@ func (p *Param) UnmarshalBinary(b []byte) error {
 
 	p.Tag = binary.BigEndian.Uint16(b[0:2])
 	p.Length = binary.BigEndian.Uint16(b[2:4])
-	if int(p.Length) > l {
+	if int(p.Length) > l || p.Length < 4 {
 		return ErrInvalidLength
 	}
 
