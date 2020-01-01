@@ -115,7 +115,7 @@ See [example/server directory](./examples/server) for server example.
 ### Messages
 
 | Class    | Message                                         | Supported | Notes                                                          |
-| -------- | ----------------------------------------------- | --------- | -------------------------------------------------------------- |
+|----------|-------------------------------------------------|-----------|----------------------------------------------------------------|
 | Transfer | Payload Data Message (DATA)                     | Yes       | [RFC4666#3.3](https://tools.ietf.org/html/rfc4666#section-3.3) |
 | SSNM     | Destination Unavailable (DUNA)                  | Yes       | [RFC4666#3.4](https://tools.ietf.org/html/rfc4666#section-3.4) |
 |          | Destination Available (DAVA)                    | Yes       |                                                                |
@@ -143,7 +143,7 @@ See [example/server directory](./examples/server) for server example.
 ### Parameters
 
 | Type          | Parameters                   | Supported | Notes |
-| ------------- | ---------------------------- | --------- | ----- |
+|---------------|------------------------------|-----------|-------|
 | Common        | INFO String                  | Yes       |       |
 |               | Routing Context              | Yes       |       |
 |               | Diagnostic Information       | Yes       |       |
