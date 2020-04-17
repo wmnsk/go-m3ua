@@ -101,8 +101,7 @@ func (a *AspDown) SetLength() {
 		param.SetLength()
 	}
 
-	a.Header.SetLength()
-	a.Header.Length += uint32(a.MarshalLen())
+	a.Header.Length = 8 + uint32(a.MarshalLen())
 }
 
 // MarshalLen returns the serial length of AspDown.

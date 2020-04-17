@@ -104,6 +104,7 @@ func (g *Generic) SetLength() {
 	for _, pr := range g.Params {
 		pr.SetLength()
 	}
+
 	g.Header.SetLength()
 }
 
