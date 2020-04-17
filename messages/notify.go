@@ -151,7 +151,7 @@ func (n *Notify) SetLength() {
 		param.SetLength()
 	}
 
-	n.Header.Length = 8 + uint32(n.MarshalLen())
+	n.Header.Length = uint32(n.MarshalLen())
 }
 
 // MarshalLen returns the serial length of Notify.

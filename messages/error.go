@@ -157,7 +157,7 @@ func (e *Error) SetLength() {
 		param.SetLength()
 	}
 
-	e.Header.Length = 8 + uint32(e.MarshalLen())
+	e.Header.Length = uint32(e.MarshalLen())
 }
 
 // MarshalLen returns the serial length of Error.

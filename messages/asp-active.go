@@ -129,7 +129,7 @@ func (a *AspActive) SetLength() {
 		param.SetLength()
 	}
 
-	a.Header.Length = 8 + uint32(a.MarshalLen())
+	a.Header.Length = uint32(a.MarshalLen())
 }
 
 // MarshalLen returns the serial length of AspActive.

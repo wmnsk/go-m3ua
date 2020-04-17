@@ -138,7 +138,7 @@ func (d *DestinationStateAudit) SetLength() {
 		param.SetLength()
 	}
 
-	d.Header.Length = 8 + uint32(d.MarshalLen())
+	d.Header.Length = uint32(d.MarshalLen())
 }
 
 // MarshalLen returns the serial length of DestinationStateAudit.

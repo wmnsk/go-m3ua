@@ -105,7 +105,7 @@ func (g *Generic) SetLength() {
 		pr.SetLength()
 	}
 
-	g.Header.SetLength()
+	g.Header.Length = uint32(g.MarshalLen())
 }
 
 // String returns the Generic values in human readable format.
