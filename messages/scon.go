@@ -165,8 +165,7 @@ func (s *SignallingCongestion) SetLength() {
 		param.SetLength()
 	}
 
-	s.Header.SetLength()
-	s.Header.Length += uint32(s.MarshalLen())
+	s.Header.Length = uint32(s.MarshalLen())
 }
 
 // MarshalLen returns the serial length of SignallingCongestion.

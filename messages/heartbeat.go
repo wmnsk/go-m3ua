@@ -101,8 +101,7 @@ func (h *Heartbeat) SetLength() {
 		param.SetLength()
 	}
 
-	h.Header.SetLength()
-	h.Header.Length += uint32(h.MarshalLen())
+	h.Header.Length = uint32(h.MarshalLen())
 }
 
 // MarshalLen returns the serial length of Heartbeat.

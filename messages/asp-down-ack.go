@@ -101,8 +101,7 @@ func (a *AspDownAck) SetLength() {
 		param.SetLength()
 	}
 
-	a.Header.SetLength()
-	a.Header.Length += uint32(a.MarshalLen())
+	a.Header.Length = uint32(a.MarshalLen())
 }
 
 // MarshalLen returns the serial length of AspDownAck.
