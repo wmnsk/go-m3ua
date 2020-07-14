@@ -51,7 +51,7 @@ func serve(conn *m3ua.Conn) {
 
 func main() {
 	var (
-		addr    = flag.String("aadr", "127.0.0.1:2905", "Source IP and Port listen.")
+		addr    = flag.String("adr", "127.0.0.1:2905", "Source IP and Port listen.")
 		hbInt   = flag.Duration("hb-interval", 0, "Interval for M3UA BEAT. Put 0 to disable")
 		hbTimer = flag.Duration("hb-timer", time.Duration(5*time.Second), "Expiration timer for M3UA BEAT. Ignored when hb-interval is 0")
 	)
