@@ -22,7 +22,7 @@ import (
 
 func main() {
 	var (
-		addr  = flag.String("aadr", "127.0.0.1:2905", "Remote IP and Port to connect to.")
+		addr  = flag.String("addr", "127.0.0.1:2905", "Remote IP and Port to connect to.")
 		data  = flag.String("data", "deadbeef", "Payload to send on M3UA in hex stream format.")
 		hbInt = flag.Duration("hb-interval", 0, "Interval for M3UA BEAT. Put 0 to disable")
 	)
