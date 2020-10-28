@@ -7,6 +7,7 @@ package m3ua
 import (
 	"context"
 	"io"
+	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages"
@@ -57,6 +58,7 @@ func (c *Conn) handleStateUpdateAsClient(current, previous State) error {
 	case StateAspActive:
 		if current != previous {
 			c.established <- struct{}{}
+			c.beatAllow.Broadcast()
 		}
 		return nil
 	case StateSCTPCDI, StateSCTPRI:
@@ -78,6 +80,7 @@ func (c *Conn) handleStateUpdateAsServer(current, previous State) error {
 	case StateAspActive:
 		if current != previous {
 			c.established <- struct{}{}
+			c.beatAllow.Broadcast()
 		}
 		return nil
 	case StateSCTPCDI, StateSCTPRI:
@@ -179,10 +182,10 @@ func (c *Conn) monitor(ctx context.Context) {
 	c.errChan = make(chan error)
 	c.dataChan = make(chan *params.ProtocolDataPayload, 0xffff)
 	c.beatAckChan = make(chan struct{})
-	if c.cfg.HeartbeatInfo.Enabled {
-		go c.heartbeat(ctx)
-	}
-
+	c.beatAllow = sync.NewCond(&sync.Mutex{})
+	c.beatAllow.L.Lock()
+	go c.heartbeat(ctx)
+	defer c.beatAllow.Broadcast()
 	buf := make([]byte, 0xffff)
 	for {
 		select {

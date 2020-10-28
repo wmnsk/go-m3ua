@@ -24,6 +24,10 @@ func (c *Conn) initiateASPTM() error {
 }
 
 func (c *Conn) heartbeat(ctx context.Context) {
+	c.beatAllow.Wait()
+	if !c.cfg.HeartbeatInfo.Enabled {
+		return
+	}
 	data := make([]byte, 128)
 	beat := messages.NewHeartbeat(params.NewHeartbeatData(data))
 	for {

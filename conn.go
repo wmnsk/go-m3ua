@@ -48,6 +48,8 @@ type Conn struct {
 	sctpInfo *sctp.SndRcvInfo
 	// cfg is a configuration that is required to communicate between M3UA endpoints
 	cfg *Config
+	// Condition to allow heartbeat, only after the state is AspUp
+	beatAllow *sync.Cond
 }
 
 var netMap = map[string]string{
