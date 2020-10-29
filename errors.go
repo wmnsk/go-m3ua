@@ -138,7 +138,7 @@ func NewErrAspIDRequired() *ErrAspIDRequired {
 
 // Error returns error string.
 func (e *ErrAspIDRequired) Error() string {
-	return fmt.Sprintf("ASP ID required")
+	return "ASP ID required"
 }
 
 func (c *Conn) handleErrors(e error) error {
