@@ -6,7 +6,6 @@ package m3ua
 
 import (
 	"context"
-	"io"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -210,9 +209,6 @@ func (c *Conn) monitor(ctx context.Context) {
 			// Read from conn to see something coming from the peer.
 			n, info, err := c.sctpConn.SCTPRead(buf)
 			if err != nil {
-				if err == io.EOF {
-					continue
-				}
 				c.Close()
 				return
 			}
