@@ -21,13 +21,7 @@ import (
 )
 
 func serve(conn *m3ua.Conn) {
-	defer func() {
-		if err := recover(); err != nil {
-			conn.Close()
-			return
-		}
-		log.Printf("Recovered from crash occurred on connection with: %s", conn.RemoteAddr())
-	}()
+	defer conn.Close()
 
 	buf := make([]byte, 1500)
 	for {
@@ -36,12 +30,10 @@ func serve(conn *m3ua.Conn) {
 			// this indicates the conn is no longer alive. close M3UA conn and wait for INIT again.
 			if err == io.EOF {
 				log.Printf("Closed M3UA conn with: %s, waiting to come back...", conn.RemoteAddr())
-				conn.Close()
 				return
 			}
 			// this indicates some unexpected error occurred on M3UA conn.
 			log.Printf("Error reading from M3UA conn: %s", err)
-			conn.Close()
 			return
 		}
 
@@ -101,7 +93,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to accept M3UA: %s", err)
 		}
-		defer conn.Close()
 		log.Printf("Connected with: %s", conn.RemoteAddr())
 
 		go serve(conn)
