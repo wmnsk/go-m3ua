@@ -156,7 +156,7 @@ func (a *AspUp) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (a *AspUp) MessageClassName() string {
-	return "ASPSM"
+	return MsgClassNameASPSM
 }
 
 // MessageTypeName returns the name of message type.

@@ -192,7 +192,7 @@ func (d *Data) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (d *Data) MessageClassName() string {
-	return "Transfer"
+	return MsgClassNameTransfer
 }
 
 // MessageTypeName returns the name of message type.

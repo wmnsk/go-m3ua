@@ -210,7 +210,7 @@ func (e *Error) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (e *Error) MessageClassName() string {
-	return "Management"
+	return MsgClassNameManagement
 }
 
 // MessageTypeName returns the name of message type.

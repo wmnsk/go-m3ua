@@ -110,9 +110,9 @@ func (g *Generic) SetLength() {
 
 // String returns the Generic values in human readable format.
 func (g *Generic) String() string {
-	var paramStr []string
-	for _, pr := range g.Params {
-		paramStr = append(paramStr, pr.String())
+	paramStr := make([]string, len(g.Params))
+	for i, pr := range g.Params {
+		paramStr[i] = pr.String()
 	}
 
 	return fmt.Sprintf("{Header: %s, Params: %s}",

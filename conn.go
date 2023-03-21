@@ -113,7 +113,7 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 	n = m3.MarshalLen()
 	buf := make([]byte, n)
 	if err := m3.MarshalTo(buf); err != nil {
-		return 0, fmt.Errorf("failed to create %T: %s", m3, err)
+		return 0, fmt.Errorf("failed to create %T: %w", m3, err)
 	}
 
 	nn, err := c.sctpConn.SCTPWrite(buf, c.sctpInfo)

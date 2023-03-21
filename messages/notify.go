@@ -201,7 +201,7 @@ func (n *Notify) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (n *Notify) MessageClassName() string {
-	return "Management"
+	return MsgClassNameManagement
 }
 
 // MessageTypeName returns the name of message type.

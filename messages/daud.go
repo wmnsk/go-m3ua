@@ -176,12 +176,12 @@ func (d *DestinationStateAudit) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (d *DestinationStateAudit) MessageClassName() string {
-	return "SSNM"
+	return MsgClassNameSSNM
 }
 
 // MessageTypeName returns the name of message type.
 func (d *DestinationStateAudit) MessageTypeName() string {
-	return "Destination Unavailable"
+	return "Destination State Audit"
 }
 
 // Serialize returns the byte sequence generated from a DestinationStateAudit.

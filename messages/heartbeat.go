@@ -138,7 +138,7 @@ func (h *Heartbeat) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (h *Heartbeat) MessageClassName() string {
-	return "ASPSM"
+	return MsgClassNameASPSM
 }
 
 // MessageTypeName returns the name of message type.

@@ -24,6 +24,16 @@ const (
 	MsgClassRKM
 )
 
+// Message Class Name definitions.
+const (
+	MsgClassNameManagement = "Management"
+	MsgClassNameTransfer   = "Transfer"
+	MsgClassNameSSNM       = "SSNM"
+	MsgClassNameASPSM      = "ASPSM"
+	MsgClassNameASPTM      = "ASPTM"
+	MsgClassNameRKM        = "RKM"
+)
+
 // Message Type definitions (Management).
 const (
 	MsgTypeError = iota

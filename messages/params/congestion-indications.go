@@ -15,5 +15,5 @@ func (p *Param) CongestionLevel() uint32 {
 	if p.Tag != CongestionIndications {
 		return 0
 	}
-	return uint32(p.decodeUint32ValData() & 0xff)
+	return p.decodeUint32ValData() & 0xff
 }

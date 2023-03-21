@@ -49,13 +49,14 @@ func (v Variant) slice() []uint32 {
 		return nil
 	}
 
-	var s []uint32
-	for _, digit := range strings.Split(v.String(), "-") {
+	ss := strings.Split(v.String(), "-")
+	s := make([]uint32, len(ss))
+	for i, digit := range ss {
 		d, err := strconv.Atoi(digit)
 		if err != nil {
 			return nil
 		}
-		s = append(s, uint32(d))
+		s[i] = uint32(d)
 	}
 	return s
 }

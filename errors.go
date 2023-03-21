@@ -143,25 +143,29 @@ func (e *ErrAspIDRequired) Error() string {
 
 func (c *Conn) handleErrors(e error) error {
 	var res messages.M3UA
-	switch err := e.(type) {
-	case *ErrInvalidVersion:
+	if errors.As(e, &ErrInvalidVersion{}) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrInvalidVersion),
 			nil, nil, nil, nil,
 		)
-	case *ErrUnsupportedClass:
+	}
+	//nolint:errorlint
+	if err, ok := e.(*ErrUnsupportedClass); ok {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrUnsupportedMessageClass),
 			nil, nil, nil,
 			params.NewDiagnosticInformation(err.first40Octets()),
 		)
-	case *ErrUnsupportedMessage:
+	}
+	//nolint:errorlint
+	if err, ok := e.(*ErrUnsupportedMessage); ok {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrUnsupportedMessageType),
 			nil, nil, nil,
 			params.NewDiagnosticInformation(err.first40Octets()),
 		)
-	case *ErrUnexpectedMessage:
+	}
+	if errors.As(e, &ErrUnexpectedMessage{}) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrUnexpectedMessage),
 			c.cfg.RoutingContexts,
@@ -171,22 +175,27 @@ func (c *Conn) handleErrors(e error) error {
 			),
 			nil,
 		)
-	case *ErrInvalidSCTPStreamID:
+	}
+	if errors.As(e, &ErrInvalidSCTPStreamID{}) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrInvalidStreamIdentifier),
 			nil, nil, nil, nil,
 		)
-	case *ErrAspIDRequired:
+	}
+	if errors.As(e, &ErrAspIDRequired{}) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrAspIdentifierRequired),
 			nil, nil, nil, nil,
 		)
-	default:
+	}
+
+	if res == nil {
 		return e
 	}
 
 	if _, err := c.WriteSignal(res); err != nil {
 		return err
 	}
+
 	return nil
 }

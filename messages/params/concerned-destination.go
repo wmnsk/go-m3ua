@@ -15,5 +15,5 @@ func (p *Param) ConcernedDestination() uint32 {
 	if p.Tag != ConcernedDestination {
 		return 0
 	}
-	return uint32(p.decodeUint32ValData() & 0xffffff)
+	return p.decodeUint32ValData() & 0xffffff
 }

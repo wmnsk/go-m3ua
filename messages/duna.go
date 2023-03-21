@@ -176,7 +176,7 @@ func (d *DestinationUnavailable) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (d *DestinationUnavailable) MessageClassName() string {
-	return "SSNM"
+	return MsgClassNameSSNM
 }
 
 // MessageTypeName returns the name of message type.

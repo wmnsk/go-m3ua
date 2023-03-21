@@ -176,12 +176,12 @@ func (d *DestinationRestricted) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (d *DestinationRestricted) MessageClassName() string {
-	return "SSNM"
+	return MsgClassNameSSNM
 }
 
 // MessageTypeName returns the name of message type.
 func (d *DestinationRestricted) MessageTypeName() string {
-	return "Destination Unavailable"
+	return "Destination Restricted"
 }
 
 // Serialize returns the byte sequence generated from a DestinationRestricted.

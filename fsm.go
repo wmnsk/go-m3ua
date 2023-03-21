@@ -200,7 +200,7 @@ func (c *Conn) monitor(ctx context.Context) {
 		case state := <-c.stateChan:
 			// Act properly based on current state.
 			if err := c.handleStateUpdate(state); err != nil {
-				if err == ErrSCTPNotAlive {
+				if errors.Is(err, ErrSCTPNotAlive) {
 					c.Close()
 					return
 				}

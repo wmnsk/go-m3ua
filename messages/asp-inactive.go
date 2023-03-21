@@ -156,7 +156,7 @@ func (a *AspInactive) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (a *AspInactive) MessageClassName() string {
-	return "ASPTM"
+	return MsgClassNameASPTM
 }
 
 // MessageTypeName returns the name of message type.

@@ -138,7 +138,7 @@ func (a *AspDownAck) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (a *AspDownAck) MessageClassName() string {
-	return "ASPSM"
+	return MsgClassNameASPSM
 }
 
 // MessageTypeName returns the name of message type.

@@ -222,7 +222,7 @@ func (s *SignallingCongestion) MessageClass() uint8 {
 
 // MessageClassName returns the name of message class.
 func (s *SignallingCongestion) MessageClassName() string {
-	return "Signalling Congestion"
+	return MsgClassNameSSNM
 }
 
 // MessageTypeName returns the name of message type.
