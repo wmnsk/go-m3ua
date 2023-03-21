@@ -1,4 +1,4 @@
-// Copyright 2018-2020 go-m3ua authors. All rights reservep.decodeUint32ValData().
+// Copyright 2018-2023 go-m3ua authors. All rights reservep.decodeUint32ValData().
 // Use of this source code is governed by a MIT-style license that can be
 // found in the LICENSE file.
 

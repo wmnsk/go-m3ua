@@ -2,26 +2,22 @@
 
 Simple M3UA protocol implementation in pure Golang.
 
-[![CircleCI](https://circleci.com/gh/wmnsk/go-m3ua.svg?style=shield)](https://circleci.com/gh/wmnsk/go-m3ua)
-[![GolangCI](https://golangci.com/badges/github.com/wmnsk/go-m3ua.svg)](https://golangci.com/r/github.com/wmnsk/go-m3ua)
-[![GoDoc](https://godoc.org/github.com/wmnsk/go-m3ua?status.svg)](https://godoc.org/github.com/wmnsk/go-m3ua)
+[![CI status](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml)
+[![golangci-lint](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/wmnsk/go-m3ua.svg)](https://pkg.go.dev/github.com/wmnsk/go-m3ua)
 [![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/wmnsk/go-m3ua/blob/master/LICENSE)
 
 ## Quickstart
 
 ### Installation
 
-This project supports Go Modules. So you don't need to get dependent packages manually if you are using Go 1.11+ and GO111MODULE is set to `on`.
+go-gtp supports Go Modules. Just run go mod tidy in your project's directory to collect the required packages automatically.
 
-Otherwise, the following packages should be installed manually.
-
-```shell-session
-go get -u github.com/pkg/errors
-go get -u github.com/ishidawataru/sctp
-go get -u github.com/google/go-cmp/cmp
-go get -u github.com/pascaldekloe/goe/verify
-go get -u github.com/wmnsk/go-m3ua
 ```
+go mod tidy
+```
+
+_This project follows [the Release Policy of Go](https://golang.org/doc/devel/release.html#policy)._
 
 _*Non-Linux machine is NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
 
@@ -38,6 +34,18 @@ go run m3ua-server.go
 // Run Client then
 cd examples/client
 go run m3ua-client.go
+```
+
+There is also an example for Point Code format conversion, which works like this;
+
+```shell-session
+$ ./pc-conv -raw 1234 -variant 3-8-3
+2023/04/05 06:07:08 PC successfully converted.
+        Raw: 1234, Formatted: 0-154-2, Variant: 3-8-3
+$ 
+$ ./pc-conv -str 1-234-5 -variant 4-3-7
+2023/04/05 06:07:08 PC successfully converted.
+        Raw: 29957, Formatted: 1-234-5, Variant: 4-3-7
 ```
 
 ### For Developers
@@ -169,14 +177,13 @@ See [example/server directory](./examples/server) for server example.
 
 ## Disclaimer
 
-This is still experimental project.
-In some part, the behavior is not fully compliant with RFC, and some of the features are not even implemented yet.
+This is still experimental project. In some part, the behavior is not fully compliant with RFC, and some of the features are not even implemented yet.
 
-Also note that some exported APIs may be changed without notice before first release.
+Also note that some exported APIs may be changed without any notice before first release (v1.0.0).
 
 ## Author
 
-Yoshiyuki Kurauchi ([My Website](https://wmnsk.com/) / [Twitter](https://twitter.com/wmnskdmms))
+Yoshiyuki Kurauchi ([Website](https://wmnsk.com/) / [Twitter](https://twitter.com/wmnskdmms))
 
 ## LICENSE
 
