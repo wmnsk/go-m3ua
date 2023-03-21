@@ -11,7 +11,7 @@ Simple M3UA protocol implementation in pure Golang.
 
 ### Installation
 
-go-gtp supports Go Modules. Just run go mod tidy in your project's directory to collect the required packages automatically.
+Just run go mod tidy in your project's directory to collect the required packages automatically.
 
 ```
 go mod tidy
