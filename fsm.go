@@ -174,6 +174,7 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 	// Others: SSNM and RKM is not implemented.
 	default:
 		c.errChan <- NewErrUnsupportedMessage(m3)
+		c.stateChan <- c.state
 	}
 }
 
