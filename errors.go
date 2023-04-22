@@ -143,7 +143,8 @@ func (e *ErrAspIDRequired) Error() string {
 
 func (c *Conn) handleErrors(e error) error {
 	var res messages.M3UA
-	if errors.As(e, &ErrInvalidVersion{}) {
+	_ErrInvalidVersion := &ErrInvalidVersion{}
+	if errors.As(e, &_ErrInvalidVersion) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrInvalidVersion),
 			nil, nil, nil, nil,
@@ -165,7 +166,8 @@ func (c *Conn) handleErrors(e error) error {
 			params.NewDiagnosticInformation(err.first40Octets()),
 		)
 	}
-	if errors.As(e, &ErrUnexpectedMessage{}) {
+	_ErrUnexpectedMessage := &ErrUnexpectedMessage{}
+	if errors.As(e, &_ErrUnexpectedMessage) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrUnexpectedMessage),
 			c.cfg.RoutingContexts,
@@ -176,13 +178,15 @@ func (c *Conn) handleErrors(e error) error {
 			nil,
 		)
 	}
-	if errors.As(e, &ErrInvalidSCTPStreamID{}) {
+	_ErrInvalidSCTPStreamID := &ErrInvalidSCTPStreamID{}
+	if errors.As(e, &_ErrInvalidSCTPStreamID) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrInvalidStreamIdentifier),
 			nil, nil, nil, nil,
 		)
 	}
-	if errors.As(e, &ErrAspIDRequired{}) {
+	_ErrAspIDRequired := &ErrAspIDRequired{}
+	if errors.As(e, &_ErrAspIDRequired) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrAspIdentifierRequired),
 			nil, nil, nil, nil,
