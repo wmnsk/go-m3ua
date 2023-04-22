@@ -109,7 +109,7 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 }
 
 // Write writes data to the connection and specific stream
-func (c *Conn) WriteToStream(b []byte, streamId uint16) (n int, err error) {
+func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	if c.state != StateAspActive {
 		return 0, ErrNotEstablished
 	}
@@ -124,7 +124,7 @@ func (c *Conn) WriteToStream(b []byte, streamId uint16) (n int, err error) {
 		return 0, err
 	}
 
-	c.sctpInfo.Stream = streamId
+	c.sctpInfo.Stream = streamID
 	n, err = c.sctpConn.SCTPWrite(d, c.sctpInfo)
 	if err != nil {
 		return 0, err
