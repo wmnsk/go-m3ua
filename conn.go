@@ -124,8 +124,9 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 		return 0, err
 	}
 
-	c.sctpInfo.Stream = streamID
-	n, err = c.sctpConn.SCTPWrite(d, c.sctpInfo)
+	info := c.sctpInfo
+	info.Stream = streamID
+	n, err = c.sctpConn.SCTPWrite(d, info)
 	if err != nil {
 		return 0, err
 	}
