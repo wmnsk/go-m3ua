@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -41,7 +40,7 @@ func NewAspDownAck(info *params.Param) *AspDownAck {
 func (a *AspDownAck) MarshalBinary() ([]byte, error) {
 	b := make([]byte, a.MarshalLen())
 	if err := a.MarshalTo(b); err != nil {
-		return nil, errors.Wrap(err, "failed to serialize AspDownAck")
+		return nil, err
 	}
 	return b, nil
 }
@@ -77,12 +76,12 @@ func (a *AspDownAck) UnmarshalBinary(b []byte) error {
 	var err error
 	a.Header, err = ParseHeader(b)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Header")
+		return err
 	}
 
 	prs, err := params.ParseMultiParams(a.Header.Payload)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Params")
+		return err
 	}
 	for _, pr := range prs {
 		switch pr.Tag {

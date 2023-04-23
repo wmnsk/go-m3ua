@@ -6,10 +6,9 @@ package params
 
 import (
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"log"
-
-	"github.com/pkg/errors"
 )
 
 // Common Parameter Tag definitions.

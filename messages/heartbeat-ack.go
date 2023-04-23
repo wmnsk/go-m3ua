@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -41,7 +40,7 @@ func NewHeartbeatAck(hbData *params.Param) *HeartbeatAck {
 func (h *HeartbeatAck) MarshalBinary() ([]byte, error) {
 	b := make([]byte, h.MarshalLen())
 	if err := h.MarshalTo(b); err != nil {
-		return nil, errors.Wrap(err, "failed to serialize HeartbeatAck")
+		return nil, err
 	}
 	return b, nil
 }
@@ -77,12 +76,12 @@ func (h *HeartbeatAck) UnmarshalBinary(b []byte) error {
 	var err error
 	h.Header, err = ParseHeader(b)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Header")
+		return err
 	}
 
 	prs, err := params.ParseMultiParams(h.Header.Payload)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Params")
+		return err
 	}
 	for _, pr := range prs {
 		switch pr.Tag {
