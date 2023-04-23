@@ -106,6 +106,33 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 	return n, nil
 }
 
+// WriteToStream writes data to the connection and specific stream
+func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
+	if c.state != StateAspActive {
+		return 0, ErrNotEstablished
+	}
+	d, err := messages.NewData(
+		c.cfg.NetworkAppearance, c.cfg.RoutingContexts, params.NewProtocolData(
+			c.cfg.OriginatingPointCode, c.cfg.DestinationPointCode,
+			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
+			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b,
+		), c.cfg.CorrelationID,
+	).MarshalBinary()
+	if err != nil {
+		return 0, err
+	}
+
+	info := c.sctpInfo
+	info.Stream = streamID
+	n, err = c.sctpConn.SCTPWrite(d, info)
+	if err != nil {
+		return 0, err
+	}
+
+	n += len(d)
+	return n, nil
+}
+
 // WriteSignal writes any type of M3UA signals on top of SCTP Connection.
 func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 	n = m3.MarshalLen()
