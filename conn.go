@@ -108,7 +108,7 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 	return n, nil
 }
 
-// Write writes data to the connection and specific stream
+// WriteToStream writes data to the connection and specific stream
 func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	if c.state != StateAspActive {
 		return 0, ErrNotEstablished
