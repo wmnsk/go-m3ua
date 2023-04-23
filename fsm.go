@@ -6,9 +6,9 @@ package m3ua
 
 import (
 	"context"
+	"errors"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )

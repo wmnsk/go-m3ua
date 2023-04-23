@@ -10,8 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/ishidawataru/sctp"
 	"github.com/wmnsk/go-m3ua/messages"
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -118,7 +116,7 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 
 	nn, err := c.sctpConn.SCTPWrite(buf, c.sctpInfo)
 	if err != nil {
-		return 0, errors.Wrap(err, "failed to write M3UA")
+		return 0, fmt.Errorf("failed to write M3UA: %w", err)
 	}
 
 	n += nn

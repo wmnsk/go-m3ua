@@ -6,8 +6,6 @@ package messages
 
 import (
 	"testing"
-
-	"github.com/pkg/errors"
 )
 
 func TestParseMalformed(t *testing.T) {
@@ -22,8 +20,8 @@ func TestParseMalformed(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		if _, err := Parse(c.data); errors.Cause(err) != c.err {
-			t.Errorf("Parse/unexpected error: got: %v, want: %v", errors.Cause(err), c.err)
+		if _, err := Parse(c.data); err != c.err {
+			t.Errorf("Parse/unexpected error: got: %v, want: %v", err, c.err)
 		}
 	}
 }
