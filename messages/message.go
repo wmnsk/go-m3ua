@@ -5,9 +5,8 @@
 package messages
 
 import (
+	"errors"
 	"log"
-
-	"github.com/pkg/errors"
 )
 
 // Message Class definitions.
@@ -172,7 +171,7 @@ func Parse(b []byte) (M3UA, error) {
 	}
 
 	if err := m.UnmarshalBinary(b); err != nil {
-		return nil, errors.Wrap(err, "failed to decode M3UA")
+		return nil, err
 	}
 	return m, nil
 }

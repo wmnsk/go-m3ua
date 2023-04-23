@@ -5,7 +5,8 @@
 package messages
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
+
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -45,7 +46,7 @@ func NewDestinationUserPartUnavailable(nwApr, rtCtx, apcs, cause, info *params.P
 func (d *DestinationUserPartUnavailable) MarshalBinary() ([]byte, error) {
 	b := make([]byte, d.MarshalLen())
 	if err := d.MarshalTo(b); err != nil {
-		return nil, errors.Wrap(err, "failed to serialize DestinationUserPartUnavailable")
+		return nil, err
 	}
 	return b, nil
 }
@@ -105,12 +106,12 @@ func (d *DestinationUserPartUnavailable) UnmarshalBinary(b []byte) error {
 	var err error
 	d.Header, err = ParseHeader(b)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode DUNA")
+		return err
 	}
 
 	prs, err := params.ParseMultiParams(d.Header.Payload)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode DUNA")
+		return err
 	}
 	for _, pr := range prs {
 		switch pr.Tag {
@@ -125,7 +126,7 @@ func (d *DestinationUserPartUnavailable) UnmarshalBinary(b []byte) error {
 		case params.InfoString:
 			d.InfoString = pr
 		default:
-			return errors.Wrap(ErrInvalidParameter, "failed to decode DUNA")
+			return fmt.Errorf("failed to decode DUPU: %w", ErrInvalidParameter)
 		}
 	}
 	return nil

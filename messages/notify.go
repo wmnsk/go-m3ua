@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -46,7 +45,7 @@ func NewNotify(status, aspID, rtCtx, info *params.Param) *Notify {
 func (n *Notify) MarshalBinary() ([]byte, error) {
 	b := make([]byte, n.MarshalLen())
 	if err := n.MarshalTo(b); err != nil {
-		return nil, errors.Wrap(err, "failed to serialize Notify")
+		return nil, err
 	}
 	return b, nil
 }
@@ -112,12 +111,12 @@ func (n *Notify) UnmarshalBinary(b []byte) error {
 	var err error
 	n.Header, err = ParseHeader(b)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Header")
+		return err
 	}
 
 	prs, err := params.ParseMultiParams(n.Header.Payload)
 	if err != nil {
-		return errors.Wrap(err, "failed to decode Params")
+		return err
 	}
 	for _, pr := range prs {
 		switch pr.Tag {

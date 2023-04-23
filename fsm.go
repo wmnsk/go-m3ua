@@ -6,9 +6,9 @@ package m3ua
 
 import (
 	"context"
+	"errors"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
@@ -174,6 +174,7 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 	// Others: SSNM and RKM is not implemented.
 	default:
 		c.errChan <- NewErrUnsupportedMessage(m3)
+		c.stateChan <- c.state
 	}
 }
 

@@ -6,10 +6,10 @@
 package pc
 
 import (
+	"errors"
+	"fmt"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // Variant is a variant of Signaling Point Code represented in string.
@@ -153,11 +153,11 @@ func convStrToRaw(f string, v Variant) (uint32, error) {
 
 	ds := strings.Split(f, "-")
 	if len(ds) == 0 {
-		return 0, errors.Errorf("PC: %s is invalid; digits should be splitted with \"-\"", f)
+		return 0, fmt.Errorf("PC: %s is invalid; digits should be splitted with \"-\"", f)
 	}
 	s := v.slice()
 	if len(ds) != len(s) {
-		return 0, errors.Errorf("PC: %s and Variant: %s doesn't match", f, v)
+		return 0, fmt.Errorf("PC: %s and Variant: %s doesn't match", f, v)
 	}
 
 	r := uint32(v.BitLength())
@@ -165,7 +165,7 @@ func convStrToRaw(f string, v Variant) (uint32, error) {
 	for i, d := range ds {
 		x, err := strconv.Atoi(d)
 		if err != nil {
-			return 0, errors.Wrap(err, "failed to convert PC")
+			return 0, err
 		}
 		r -= s[i]
 		n |= (uint32(x) << r)

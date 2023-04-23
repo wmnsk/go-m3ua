@@ -5,9 +5,9 @@
 package m3ua
 
 import (
+	"errors"
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/wmnsk/go-m3ua/messages"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
