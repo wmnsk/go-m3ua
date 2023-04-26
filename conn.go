@@ -83,27 +83,7 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	if c.state != StateAspActive {
-		return 0, ErrNotEstablished
-	}
-	d, err := messages.NewData(
-		c.cfg.NetworkAppearance, c.cfg.RoutingContexts, params.NewProtocolData(
-			c.cfg.OriginatingPointCode, c.cfg.DestinationPointCode,
-			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
-			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b,
-		), c.cfg.CorrelationID,
-	).MarshalBinary()
-	if err != nil {
-		return 0, err
-	}
-
-	n, err = c.sctpConn.SCTPWrite(d, c.sctpInfo)
-	if err != nil {
-		return 0, err
-	}
-
-	n += len(d)
-	return n, nil
+	return c.WriteToStream(b, c.sctpInfo.stream)
 }
 
 // WriteToStream writes data to the connection and specific stream
