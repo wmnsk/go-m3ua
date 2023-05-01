@@ -121,7 +121,12 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 		return 0, fmt.Errorf("failed to create %T: %w", m3, err)
 	}
 
-	nn, err := c.sctpConn.SCTPWrite(buf, c.sctpInfo)
+	sctpInfo := c.sctpInfo
+	if m3.MessageClass() != messages.MsgClassTransfer {
+		sctpInfo.Stream = 0
+	}
+
+	nn, err := c.sctpConn.SCTPWrite(buf, sctpInfo)
 	if err != nil {
 		return 0, fmt.Errorf("failed to write M3UA: %w", err)
 	}
