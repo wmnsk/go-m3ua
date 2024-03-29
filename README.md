@@ -1,6 +1,6 @@
 # go-m3ua
 
-Simple M3UA protocol implementation in pure Golang.
+Simple M3UA protocol implementation in the Go programming language.
 
 [![CI status](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml)
 [![golangci-lint](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml)
@@ -11,15 +11,11 @@ Simple M3UA protocol implementation in pure Golang.
 
 ### Installation
 
-Just run go mod tidy in your project's directory to collect the required packages automatically.
-
-```
-go mod tidy
-```
+Run `go mod tidy` in your project's directory to collect the required packages automatically.
 
 _This project follows [the Release Policy of Go](https://golang.org/doc/devel/release.html#policy)._
 
-_*Non-Linux machine is NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
+_*Non-Linux machines are NOT supported, as this package relies much on [`github.com/ishidawataru/sctp`](https://github.com/ishidawataru/sctp)._
 
 ### Trying Examples
 
@@ -183,7 +179,7 @@ Also note that some exported APIs may be changed without any notice before first
 
 ## Author
 
-Yoshiyuki Kurauchi ([Website](https://wmnsk.com/) / [Twitter](https://twitter.com/wmnskdmms))
+Yoshiyuki Kurauchi ([Website](https://wmnsk.com/))
 
 ## LICENSE
 

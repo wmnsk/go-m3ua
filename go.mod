@@ -1,6 +1,6 @@
 module github.com/wmnsk/go-m3ua
 
-go 1.20
+go 1.22
 
 require (
 	github.com/google/go-cmp v0.5.9
