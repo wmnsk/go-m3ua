@@ -33,8 +33,8 @@ type Config struct {
 	NetworkAppearance      *params.Param
 	RoutingContexts        *params.Param
 	CorrelationID          *params.Param
-	OriginatingPointCode   uint32
-	DestinationPointCode   uint32
+	SelfSPC                uint32
+	DefaultDPC             uint32
 	ServiceIndicator       uint8
 	NetworkIndicator       uint8
 	MessagePriority        uint8
@@ -47,10 +47,10 @@ type Config struct {
 // setters defined in this package. Note that the params left nil won't
 // appear in the packets but the initialized params will, with zero
 // values.
-func NewConfig(opc, dpc uint32, si, ni, mp, sls uint8) *Config {
+func NewConfig(own, remote uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
-		OriginatingPointCode:   opc,
-		DestinationPointCode:   dpc,
+		SelfSPC:                own,
+		DefaultDPC:             remote,
 		ServiceIndicator:       si,
 		NetworkIndicator:       ni,
 		MessagePriority:        mp,
@@ -106,7 +106,7 @@ func (c *Config) SetCorrelationID(id uint32) *Config {
 //
 // The optional parameters that is not required (like CorrelationID)
 // can be omitted by setting it to nil after created *Config.
-func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
+func NewClientConfig(hbInfo *HeartbeatInfo, own, remote, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
 		AspIdentifier:          params.NewAspIdentifier(aspID),
@@ -114,8 +114,8 @@ func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID 
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
 		RoutingContexts:        params.NewRoutingContext(rtCtxs...),
 		CorrelationID:          params.NewCorrelationID(corrID),
-		OriginatingPointCode:   opc,
-		DestinationPointCode:   dpc,
+		SelfSPC:                own,
+		DefaultDPC:             remote,
 		ServiceIndicator:       si,
 		NetworkIndicator:       ni,
 		MessagePriority:        mp,
@@ -127,7 +127,7 @@ func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID 
 //
 // The optional parameters that is not required (like CorrelationID)
 // can be omitted by setting it to nil after created *Config.
-func NewServerConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
+func NewServerConfig(hbInfo *HeartbeatInfo, own, remote, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
 		AspIdentifier:          params.NewAspIdentifier(aspID),
@@ -135,8 +135,8 @@ func NewServerConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID 
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
 		RoutingContexts:        params.NewRoutingContext(rtCtxs...),
 		CorrelationID:          params.NewCorrelationID(corrID),
-		OriginatingPointCode:   opc,
-		DestinationPointCode:   dpc,
+		SelfSPC:                own,
+		DefaultDPC:             remote,
 		ServiceIndicator:       si,
 		NetworkIndicator:       ni,
 		MessagePriority:        mp,

@@ -36,9 +36,13 @@ func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
 		Id: c.id,
 	}
 
-	if c.cfg.OriginatingPointCode != pd.DestinationPointCode {
+	if c.cfg.SelfSPC != pd.DestinationPointCode {
 		c.errChan <- NewErrUnexpectedMessage(data)
 		return
+	}
+
+	if c.cfg.DefaultDPC == 0 {
+		c.cfg.DefaultDPC = pd.OriginatingPointCode
 	}
 
 	select {

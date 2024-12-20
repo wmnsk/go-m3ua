@@ -173,7 +173,7 @@ func (c *Conn) handleErrors(e error) error {
 			c.cfg.RoutingContexts,
 			c.cfg.NetworkAppearance,
 			params.NewAffectedPointCode(
-				c.cfg.OriginatingPointCode,
+				c.cfg.SelfSPC,
 			),
 			nil,
 		)
