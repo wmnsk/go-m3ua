@@ -25,7 +25,8 @@ const (
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
 	// mu is to Lock when updating state
-	mu *sync.Mutex
+	mu sync.Mutex
+
 	// mode represents the endpoint works as client or server
 	mode mode
 	// state is to see the current state
@@ -36,8 +37,11 @@ type Conn struct {
 	established chan struct{}
 	// beatAckChan notifies that heartbeat gets the ack as expected
 	beatAckChan chan struct{}
-	// dataChan is to pass the ProtocolDataPayload(=payload on M3UA DATA) to user
-	dataChan chan *params.ProtocolDataPayload
+
+	// Interface to upper layer
+	serviceChan chan *ServeEvent
+	id          int
+
 	// errChan is to pass errors to goroutine that monitors status
 	errChan chan error
 	// sctpConn is the underlying SCTP association
@@ -54,31 +58,6 @@ var netMap = map[string]string{
 	"m3ua":  "sctp",
 	"m3ua4": "sctp4",
 	"m3ua6": "sctp6",
-}
-
-// Read reads data from the connection.
-func (c *Conn) Read(b []byte) (n int, err error) {
-	err = func() error {
-		c.mu.Lock()
-		defer c.mu.Unlock()
-
-		if c.state != StateAspActive {
-			return ErrNotEstablished
-		}
-		return nil
-	}()
-	if err != nil {
-		return 0, err
-	}
-
-	pd, ok := <-c.dataChan
-	if !ok {
-		return 0, ErrNotEstablished
-	}
-
-	copy(b, pd.Data)
-	return len(pd.Data), nil
-
 }
 
 // Write writes data to the connection.
@@ -140,13 +119,18 @@ func (c *Conn) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
+	ev := &ServeEvent{
+		Id:  c.id,
+		Err: ErrConnectionClosed,
+	}
+	c.serviceChan <- ev
+
 	if c.state == StateAspDown {
 		return c.sctpConn.Close()
 	}
 
 	close(c.established)
 	close(c.beatAckChan)
-	close(c.dataChan)
 	c.state = StateAspDown
 	return c.sctpConn.Close()
 }

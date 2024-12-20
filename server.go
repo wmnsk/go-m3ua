@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 
 	"github.com/ishidawataru/sctp"
@@ -41,14 +40,16 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 // Accept waits for and returns the next connection to the listener.
 // After successfully established the association with peer, Payload can be read with Read() func.
 // Other signals are automatically handled background in another goroutine.
-func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
+func (l *Listener) Accept(ctx context.Context, q chan *ServeEvent, id int) (*Conn, error) {
 	conn := &Conn{
-		mu:          new(sync.Mutex),
 		mode:        modeServer,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
 		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
 		cfg:         l.Config,
+
+		serviceChan: q,
+		id:          id,
 	}
 
 	if conn.cfg.HeartbeatInfo.Interval == 0 {

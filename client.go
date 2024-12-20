@@ -7,7 +7,6 @@ package m3ua
 import (
 	"context"
 	"fmt"
-	"sync"
 	"time"
 
 	"github.com/ishidawataru/sctp"
@@ -17,15 +16,16 @@ import (
 //
 // After successfully established the connection with peer, state-changing
 // signals and heartbeats are automatically handled background in another goroutine.
-func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
+func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config, q chan *ServeEvent) (*Conn, error) {
 	var err error
 	conn := &Conn{
-		mu:          new(sync.Mutex),
 		mode:        modeClient,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
 		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
 		cfg:         cfg,
+
+		serviceChan: q,
 	}
 
 	if conn.cfg.HeartbeatInfo.Interval == 0 {

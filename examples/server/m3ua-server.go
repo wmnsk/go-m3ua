@@ -10,8 +10,8 @@ package main
 import (
 	"context"
 	"flag"
-	"io"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/wmnsk/go-m3ua/messages/params"
@@ -20,24 +20,31 @@ import (
 	"github.com/wmnsk/go-m3ua"
 )
 
-func serve(conn *m3ua.Conn) {
-	defer conn.Close()
+var (
+	mu        sync.Mutex
+	conns     map[int]*m3ua.Conn
+	serveChan chan *m3ua.ServeEvent
+)
 
-	buf := make([]byte, 1500)
+func serve(ctx context.Context) {
 	for {
-		n, err := conn.Read(buf)
-		if err != nil {
-			// this indicates the conn is no longer alive. close M3UA conn and wait for INIT again.
-			if err == io.EOF {
-				log.Printf("Closed M3UA conn with: %s, waiting to come back...", conn.RemoteAddr())
-				return
-			}
-			// this indicates some unexpected error occurred on M3UA conn.
-			log.Printf("Error reading from M3UA conn: %s", err)
+		select {
+		case <-ctx.Done():
+			log.Println("shutting down, ctx")
 			return
-		}
+		case ev := <-serveChan:
+			if ev.Err != nil {
+				log.Println("conn is closed:", ev.Err)
 
-		log.Printf("Read: %x", buf[:n])
+				go func(id int) {
+					mu.Lock()
+					defer mu.Unlock()
+					delete(conns, id)
+				}(ev.Id)
+			} else {
+				log.Printf("%d -> Read: %x", ev.Id, ev.PD.Data)
+			}
+		}
 	}
 }
 
@@ -88,13 +95,24 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
+	id := 1
+	serveChan = make(chan *m3ua.ServeEvent, 10)
+	conns = make(map[int]*m3ua.Conn)
+	go serve(ctx)
+
 	for {
-		conn, err := listener.Accept(ctx)
+		conn, err := listener.Accept(ctx, serveChan, id)
+
 		if err != nil {
 			log.Fatalf("Failed to accept M3UA: %s", err)
+			continue
 		}
-		log.Printf("Connected with: %s", conn.RemoteAddr())
 
-		go serve(conn)
+		mu.Lock()
+		conns[id] = conn
+		mu.Unlock()
+		id++
+
+		log.Printf("Connected with: %s", conn.RemoteAddr())
 	}
 }

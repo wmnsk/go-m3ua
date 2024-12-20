@@ -83,7 +83,7 @@ func main() {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	conn, err := m3ua.Dial(ctx, "m3ua", nil, raddr, config)
+	conn, err := m3ua.Dial(ctx, "m3ua", nil, raddr, config, make(chan *m3ua.ServeEvent, 5))
 	if err != nil {
 		log.Fatalf("Failed to dial M3UA: %s", err)
 	}
