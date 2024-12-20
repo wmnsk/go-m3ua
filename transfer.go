@@ -31,6 +31,10 @@ func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
 		c.errChan <- ErrFailedToPeelOff
 		return
 	}
+	e := &ServeEvent{
+		PD: pd,
+		Id: c.id,
+	}
 
 	if c.cfg.OriginatingPointCode != pd.DestinationPointCode {
 		c.errChan <- NewErrUnexpectedMessage(data)
@@ -38,7 +42,7 @@ func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
 	}
 
 	select {
-	case c.dataChan <- pd:
+	case c.serviceChan <- e:
 		return
 	case <-ctx.Done():
 		return

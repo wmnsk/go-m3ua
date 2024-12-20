@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"github.com/wmnsk/go-m3ua/messages"
-	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
 // State represents ASP State.
@@ -180,7 +179,6 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 
 func (c *Conn) monitor(ctx context.Context) {
 	c.errChan = make(chan error)
-	c.dataChan = make(chan *params.ProtocolDataPayload, 0xffff)
 	c.beatAckChan = make(chan struct{})
 
 	c.beatAllow = sync.NewCond(&sync.Mutex{})
