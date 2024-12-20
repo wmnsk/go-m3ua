@@ -60,22 +60,42 @@ var netMap = map[string]string{
 	"m3ua6": "sctp6",
 }
 
-// Write writes data to the connection.
+// Write writes m3ua payload to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	return c.WriteToStream(b, c.sctpInfo.Stream)
+	return c.WriteToStream(
+		params.NewProtocolData(
+			c.cfg.SelfSPC, c.cfg.DefaultDPC,
+			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
+			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b),
+		c.sctpInfo.Stream)
+}
+
+// Write writes m3ua payload to the connection to the specified SPC
+func (c *Conn) WriteTo(dpc uint32, b []byte) (n int, err error) {
+	return c.WriteToStream(
+		params.NewProtocolData(
+			c.cfg.SelfSPC, dpc,
+			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
+			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b),
+		c.sctpInfo.Stream)
+}
+
+func (c *Conn) Send(pd *params.ProtocolDataPayload) (n int, err error) {
+	return c.WriteToStream(
+		params.NewProtocolData(
+			pd.OriginatingPointCode, pd.DestinationPointCode,
+			pd.ServiceIndicator, pd.NetworkIndicator,
+			pd.MessagePriority, pd.SignalingLinkSelection, pd.Data),
+		c.sctpInfo.Stream)
 }
 
 // WriteToStream writes data to the connection and specific stream
-func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
+func (c *Conn) WriteToStream(p *params.Param, streamID uint16) (n int, err error) {
 	if c.state != StateAspActive {
 		return 0, ErrNotEstablished
 	}
 	d, err := messages.NewData(
-		c.cfg.NetworkAppearance, c.cfg.RoutingContexts, params.NewProtocolData(
-			c.cfg.OriginatingPointCode, c.cfg.DestinationPointCode,
-			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
-			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b,
-		), c.cfg.CorrelationID,
+		c.cfg.NetworkAppearance, c.cfg.RoutingContexts, p, c.cfg.CorrelationID,
 	).MarshalBinary()
 	if err != nil {
 		return 0, err
