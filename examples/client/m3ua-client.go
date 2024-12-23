@@ -14,10 +14,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 
+	"github.com/dmisol/go-m3ua"
 	"github.com/ishidawataru/sctp"
-	"github.com/wmnsk/go-m3ua"
 )
 
 func main() {

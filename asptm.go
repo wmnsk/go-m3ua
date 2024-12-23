@@ -9,8 +9,8 @@ import (
 	"crypto/rand"
 	"time"
 
-	"github.com/wmnsk/go-m3ua/messages"
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 func (c *Conn) initiateASPTM() error {

@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dmisol/go-m3ua/messages/params"
 	"github.com/google/go-cmp/cmp"
-	"github.com/wmnsk/go-m3ua/messages/params"
 
 	"github.com/ishidawataru/sctp"
 )

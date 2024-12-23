@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 
+	"github.com/dmisol/go-m3ua"
 	"github.com/ishidawataru/sctp"
-	"github.com/wmnsk/go-m3ua"
 )
 
 var (
@@ -42,7 +42,7 @@ func serve(ctx context.Context) {
 					delete(conns, id)
 				}(ev.Id)
 			} else {
-				log.Printf("%d -> Read: %x", ev.Id, ev.PD.Data)
+				log.Printf("%d(%X) -> Read: %x", ev.Id, ev.PD.OriginatingPointCode, ev.PD.Data)
 			}
 		}
 	}

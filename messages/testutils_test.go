@@ -4,7 +4,7 @@
 
 /*
 This utility is to simplify the test cases used throughout the package,
-much inspired from github.com/wmnsk/gopcua/blob/master/utils/codectest/testcase.go,
+much inspired from github.com/dmisol/gopcua/blob/master/utils/codectest/testcase.go,
 which is written by @magiconair (https://github.com/magiconair).
 */
 

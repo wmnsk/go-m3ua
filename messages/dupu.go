@@ -7,7 +7,7 @@ package messages
 import (
 	"fmt"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // DestinationUserPartUnavailable is a DestinationUserPartUnavailable type of M3UA message.

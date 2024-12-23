@@ -4,7 +4,7 @@
 
 package m3ua
 
-import "github.com/wmnsk/go-m3ua/messages"
+import "github.com/dmisol/go-m3ua/messages"
 
 // XXX - implement!
 func (c *Conn) handleError(e *messages.Error) error {
