@@ -8,8 +8,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/wmnsk/go-m3ua/messages"
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // Error definitions.

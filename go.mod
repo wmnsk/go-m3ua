@@ -1,4 +1,4 @@
-module github.com/wmnsk/go-m3ua
+module github.com/dmisol/go-m3ua
 
 go 1.21
 

@@ -7,7 +7,7 @@ package messages
 import (
 	"testing"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 func TestNotify(t *testing.T) {

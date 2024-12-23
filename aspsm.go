@@ -4,7 +4,7 @@
 
 package m3ua
 
-import "github.com/wmnsk/go-m3ua/messages"
+import "github.com/dmisol/go-m3ua/messages"
 
 func (c *Conn) initiateASPSM() error {
 	if _, err := c.WriteSignal(

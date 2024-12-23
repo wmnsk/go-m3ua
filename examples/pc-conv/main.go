@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/wmnsk/go-m3ua/pc"
+	"github.com/dmisol/go-m3ua/pc"
 )
 
 func main() {

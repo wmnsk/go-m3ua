@@ -7,7 +7,7 @@ package messages
 import (
 	"fmt"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // SignallingCongestion is a SignallingCongestion type of M3UA message.

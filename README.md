@@ -2,10 +2,10 @@
 
 Simple M3UA protocol implementation in the Go programming language.
 
-[![CI status](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/go.yml)
-[![golangci-lint](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/wmnsk/go-m3ua/actions/workflows/golangci-lint.yml)
-[![Go Reference](https://pkg.go.dev/badge/github.com/wmnsk/go-m3ua.svg)](https://pkg.go.dev/github.com/wmnsk/go-m3ua)
-[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/wmnsk/go-m3ua/blob/master/LICENSE)
+[![CI status](https://github.com/dmisol/go-m3ua/actions/workflows/go.yml/badge.svg)](https://github.com/dmisol/go-m3ua/actions/workflows/go.yml)
+[![golangci-lint](https://github.com/dmisol/go-m3ua/actions/workflows/golangci-lint.yml/badge.svg)](https://github.com/dmisol/go-m3ua/actions/workflows/golangci-lint.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/dmisol/go-m3ua.svg)](https://pkg.go.dev/github.com/dmisol/go-m3ua)
+[![GitHub](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/dmisol/go-m3ua/blob/master/LICENSE)
 
 ## Quickstart
 
@@ -179,8 +179,8 @@ Also note that some exported APIs may be changed without any notice before first
 
 ## Author
 
-Yoshiyuki Kurauchi ([Website](https://wmnsk.com/))
+Yoshiyuki Kurauchi ([Website](https://dmisol.com/))
 
 ## LICENSE
 
-[MIT](https://github.com/wmnsk/go-m3ua/blob/master/LICENSE)
+[MIT](https://github.com/dmisol/go-m3ua/blob/master/LICENSE)

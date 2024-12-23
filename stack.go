@@ -3,7 +3,7 @@ package m3ua
 import (
 	"errors"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 var ErrConnectionClosed = errors.New("connection closed")

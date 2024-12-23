@@ -9,7 +9,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/wmnsk/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages"
 )
 
 // State represents ASP State.

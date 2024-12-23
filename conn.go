@@ -10,9 +10,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/dmisol/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages/params"
 	"github.com/ishidawataru/sctp"
-	"github.com/wmnsk/go-m3ua/messages"
-	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
 type mode uint8

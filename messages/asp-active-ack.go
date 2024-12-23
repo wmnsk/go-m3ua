@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // AspActiveAck is a AspActiveAck type of M3UA message.

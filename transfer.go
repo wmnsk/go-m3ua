@@ -8,7 +8,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/wmnsk/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages"
 )
 
 func (c *Conn) handleData(ctx context.Context, data *messages.Data) {

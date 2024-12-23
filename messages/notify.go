@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/wmnsk/go-m3ua/messages/params"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // Notify is a Notify type of M3UA message.
@@ -66,7 +66,7 @@ func (n *Notify) MarshalTo(b []byte) error {
 	// (ref: https://tools.ietf.org/html/rfc4666#section-3.8.2)
 	// However, this library aims to be flexible using and/or verifying,
 	// so it doesn't check the existence of the parameter for now.
-	// Discussion: https://github.com/wmnsk/go-m3ua/pull/10#discussion_r304225571
+	// Discussion: https://github.com/dmisol/go-m3ua/pull/10#discussion_r304225571
 	if param := n.Status; param != nil {
 		if err := param.MarshalTo(n.Header.Payload[offset:]); err != nil {
 			return err
