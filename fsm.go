@@ -7,9 +7,11 @@ package m3ua
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/dmisol/go-m3ua/messages"
+	"github.com/dmisol/go-m3ua/messages/params"
 )
 
 // State represents ASP State.
@@ -33,6 +35,7 @@ func (c *Conn) handleStateUpdate(current State) error {
 	switch c.mode {
 	case modeClient:
 		if err := c.handleStateUpdateAsClient(current, previous); err != nil {
+			fmt.Println("handleStateUpdateAsClient", err)
 			return err
 		}
 		return nil
@@ -47,11 +50,21 @@ func (c *Conn) handleStateUpdate(current State) error {
 }
 
 func (c *Conn) handleStateUpdateAsClient(current, previous State) error {
+	fmt.Println("handle:", current, previous)
+
 	switch current {
 	case StateAspDown:
 		c.sctpInfo.Stream = 0
 		return c.initiateASPSM()
 	case StateAspInactive:
+		// todo: ? re-design:
+		// if (rk && !rc)) - send REGREQ
+		// if rc - send AspAc
+		if c.cfg.RoutingKey != nil && previous == StateAspDown {
+			fmt.Println("issue ReqReq")
+			return c.initiateREQREQ()
+		}
+		fmt.Println("issue AspAC")
 		return c.initiateASPTM()
 	case StateAspActive:
 		if current != previous {
@@ -89,6 +102,7 @@ func (c *Conn) handleStateUpdateAsServer(current, previous State) error {
 }
 
 func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
+	fmt.Println("sig:", c.state, m3.MessageClassName(), m3.MessageTypeName(), m3.MessageClass(), m3.MessageType())
 	select {
 	case <-ctx.Done():
 		return
@@ -135,7 +149,7 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 		c.stateChan <- StateAspActive
 	case *messages.AspActiveAck:
 		if err := c.handleAspActiveAck(msg); err != nil {
-			c.errChan <- err
+			// c.errChan <- err
 		}
 		c.stateChan <- StateAspActive
 	case *messages.AspInactive:
@@ -167,11 +181,35 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 		c.stateChan <- c.state
 	case *messages.Notify:
 		if err := c.handleNotify(msg); err != nil {
+			fmt.Println("err on Notify")
 			c.errChan <- err
 		}
 		c.stateChan <- c.state
-	// Others: SSNM and RKM is not implemented.
+		// Others: SSNM and RKM is not implemented.
+	case *messages.RegReq:
+		fmt.Println("req")
+		c.stateChan <- c.state
+
+	case *messages.RegRsp:
+		fmt.Println("resp")
+		c.stateChan <- c.state
+
+		// todo: damn, re-write m3ua from scratch!
+		b, _ := m3.MarshalBinary()
+		rr, err := messages.ParseRegRsp(b)
+		if err != nil {
+			c.errChan <- err
+			return
+		}
+		rc, err := rr.FetchRC()
+		if err != nil {
+			c.errChan <- err
+			return
+		}
+		c.cfg.RoutingContexts = params.NewRoutingContext(rc)
 	default:
+		fmt.Println("UNHANDLED:", c.state, m3.MessageClassName(), m3.MessageTypeName(), m3.MessageClass(), m3.MessageType())
+
 		c.errChan <- NewErrUnsupportedMessage(m3)
 		c.stateChan <- c.state
 	}
@@ -193,6 +231,7 @@ func (c *Conn) monitor(ctx context.Context) {
 			c.Close()
 			return
 		case err := <-c.errChan:
+			fmt.Println("errChan", err)
 			if e := c.handleErrors(err); e != nil {
 				c.Close()
 				return

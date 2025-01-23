@@ -9,7 +9,6 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
 	"flag"
 	"log"
 	"time"
@@ -23,20 +22,14 @@ import (
 func main() {
 	var (
 		addr  = flag.String("addr", "127.0.0.1:2905", "Remote IP and Port to connect to.")
-		data  = flag.String("data", "deadbeef", "Payload to send on M3UA in hex stream format.")
+		data  = []byte{0x9, 0x0, 0x3, 0x7, 0xb, 0x4, 0x43, 0xb9, 0x0, 0xfe, 0x4, 0x43, 0x1, 0x0, 0xfe, 0x6, 0x0, 0x4, 0x30, 0x4, 0x1, 0x20}
 		hbInt = flag.Duration("hb-interval", 0, "Interval for M3UA BEAT. Put 0 to disable")
 	)
 	flag.Parse()
 
-	// setup data to send
-	d, err := hex.DecodeString(*data)
-	if err != nil {
-		log.Fatalf("Failed to decode Hex string: %s", err)
-	}
-
 	// create *Config to be used in M3UA connection
 	config := m3ua.NewConfig(
-		0x11111111,            // OriginatingPointCode
+		0x123,                 // OriginatingPointCode
 		0x22222222,            // DestinationPointCode
 		params.ServiceIndSCCP, // ServiceIndicator
 		0,                     // NetworkIndicator
@@ -46,9 +39,10 @@ func main() {
 	config. // set parameters to use
 		EnableHeartbeat(*hbInt, 10*time.Second).
 		SetAspIdentifier(1).
-		SetTrafficModeType(params.TrafficModeLoadshare).
+		//SetTrafficModeType(params.TrafficModeLoadshare).
 		SetNetworkAppearance(0).
-		SetRoutingContexts(1, 2)
+		//SetRoutingContexts(5951). // todo: fetch from RegResp
+		SetRoutingKey(0x123)
 
 	/* or, you can define config in the following way.
 	config := m3ua.NewClientConfig(
@@ -91,11 +85,10 @@ func main() {
 
 	// send data once in 3 seconds.
 	for {
-		if _, err := conn.Write(d); err != nil {
+		if _, err := conn.Write(data); err != nil {
 			log.Fatalf("Failed to write M3UA data: %s", err)
 		}
-		log.Printf("Sent: %x", d)
 
-		time.Sleep(3 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }

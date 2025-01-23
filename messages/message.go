@@ -165,6 +165,10 @@ func Parse(b []byte) (M3UA, error) {
 		m = &Error{}
 	case combine(MsgClassManagement, MsgTypeNotify):
 		m = &Notify{}
+	case combine(MsgClassRKM, MsgTypeRegistrationRequest):
+		m = &RegReq{}
+	case combine(MsgClassRKM, MsgTypeRegistrationResponse):
+		m = &RegRsp{}
 	default:
 		// If the combination of class and type is unknown or not supported, *Generic is used.
 		m = &Generic{}

@@ -5,6 +5,7 @@
 package m3ua
 
 import (
+	"encoding/binary"
 	"time"
 
 	"github.com/dmisol/go-m3ua/messages/params"
@@ -33,6 +34,7 @@ type Config struct {
 	NetworkAppearance      *params.Param
 	RoutingContexts        *params.Param
 	CorrelationID          *params.Param
+	RoutingKey             *params.Param
 	SelfSPC                uint32
 	DefaultDPC             uint32
 	ServiceIndicator       uint8
@@ -99,6 +101,20 @@ func (c *Config) SetRoutingContexts(rtCtxs ...uint32) *Config {
 // SetCorrelationID sets CorrelationID in Config.
 func (c *Config) SetCorrelationID(id uint32) *Config {
 	c.CorrelationID = params.NewCorrelationID(id)
+	return c
+}
+
+func (c *Config) SetRoutingKey(spc uint32) *Config {
+	pc := make([]byte, 4)
+	binary.BigEndian.PutUint32(pc, spc)
+	p := &params.Param{
+		Tag:    params.RoutingKey,
+		Length: 36,
+		Data:   []byte{0x2, 0xa, 0x0, 0x8, 0x0, 0x0, 0x0, 0x1, 0x0, 0x6, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0x0, 0xb, 0x0, 0x8, 0x0, 0x0, 0x0, 0x1, 0x2, 0xb, 0x0, 0x8, 0x0},
+	}
+	p.Data = append(p.Data, pc[1:]...)
+
+	c.RoutingKey = p
 	return c
 }
 
