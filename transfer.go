@@ -13,9 +13,7 @@ import (
 
 func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
 	err := func() error {
-		c.mu.Lock()
-		defer c.mu.Unlock()
-		if c.state != StateAspActive {
+		if c.State() != StateAspActive {
 			c.errChan <- NewErrUnexpectedMessage(data)
 			return errors.New(data.String())
 		}

@@ -20,7 +20,7 @@ import (
 func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
 	var err error
 	conn := &Conn{
-		mu:          new(sync.Mutex),
+		muState:     new(sync.RWMutex),
 		mode:        modeClient,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
