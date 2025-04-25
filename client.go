@@ -21,6 +21,7 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	var err error
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
+		muSctpInfo:  new(sync.RWMutex),
 		mode:        modeClient,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),

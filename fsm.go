@@ -50,7 +50,6 @@ func (c *Conn) handleStateUpdate(current State) error {
 func (c *Conn) handleStateUpdateAsClient(current, previous State) error {
 	switch current {
 	case StateAspDown:
-		c.sctpInfo.Stream = 0
 		return c.initiateASPSM()
 	case StateAspInactive:
 		return c.initiateASPTM()

@@ -26,6 +26,8 @@ const (
 type Conn struct {
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
+	// muSctpInfo is to Lock when updating sctpInfo
+	muSctpInfo *sync.RWMutex
 	// mode represents the endpoint works as client or server
 	mode mode
 	// state is to see the current state
@@ -80,7 +82,7 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	return c.WriteToStream(b, c.sctpInfo.Stream)
+	return c.WriteToStream(b, c.StreamID())
 }
 
 // WriteToStream writes data to the connection and specific stream
@@ -99,6 +101,8 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 		return 0, err
 	}
 
+	c.muSctpInfo.Lock()
+	defer c.muSctpInfo.Unlock()
 	info := c.sctpInfo
 	info.Stream = streamID
 	n, err = c.sctpConn.SCTPWrite(d, info)
@@ -118,6 +122,8 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 		return 0, fmt.Errorf("failed to create %T: %w", m3, err)
 	}
 
+	c.muSctpInfo.Lock()
+	defer c.muSctpInfo.Unlock()
 	sctpInfo := c.sctpInfo
 	if m3.MessageClass() != messages.MsgClassTransfer {
 		sctpInfo.Stream = 0
@@ -178,4 +184,11 @@ func (c *Conn) State() State {
 	c.muState.RLock()
 	defer c.muState.RUnlock()
 	return c.state
+}
+
+// StreamID returns sctpInfo.Stream of Conn.
+func (c *Conn) StreamID() uint16 {
+	c.muSctpInfo.RLock()
+	defer c.muSctpInfo.RUnlock()
+	return c.sctpInfo.Stream
 }

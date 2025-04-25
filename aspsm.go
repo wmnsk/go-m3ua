@@ -20,8 +20,8 @@ func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
 		return NewErrUnexpectedMessage(aspUp)
 
 	}
-	if c.sctpInfo.Stream != 0 {
-		return NewErrInvalidSCTPStreamID(c.sctpInfo.Stream)
+	if c.StreamID() != 0 {
+		return NewErrInvalidSCTPStreamID(c.StreamID())
 	}
 
 	if _, err := c.WriteSignal(
@@ -40,8 +40,8 @@ func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
 	if c.State() != StateAspDown {
 		return NewErrUnexpectedMessage(aspUpAck)
 	}
-	if c.sctpInfo.Stream != 0 {
-		return NewErrInvalidSCTPStreamID(c.sctpInfo.Stream)
+	if c.StreamID() != 0 {
+		return NewErrInvalidSCTPStreamID(c.StreamID())
 	}
 
 	return nil
@@ -52,8 +52,8 @@ func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
 	case StateAspInactive, StateAspActive:
 		return NewErrUnexpectedMessage(aspDown)
 	}
-	if c.sctpInfo.Stream != 0 {
-		return NewErrInvalidSCTPStreamID(c.sctpInfo.Stream)
+	if c.StreamID() != 0 {
+		return NewErrInvalidSCTPStreamID(c.StreamID())
 	}
 
 	// XXX - Validate the params.
@@ -70,8 +70,8 @@ func (c *Conn) handleAspDownAck(aspDownAck *messages.AspDownAck) error {
 	case StateAspInactive, StateAspActive:
 		return NewErrUnexpectedMessage(aspDownAck)
 	}
-	if c.sctpInfo.Stream != 0 {
-		return NewErrInvalidSCTPStreamID(c.sctpInfo.Stream)
+	if c.StreamID() != 0 {
+		return NewErrInvalidSCTPStreamID(c.StreamID())
 	}
 
 	return nil

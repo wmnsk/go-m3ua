@@ -44,6 +44,7 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
+		muSctpInfo:  new(sync.RWMutex),
 		mode:        modeServer,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
