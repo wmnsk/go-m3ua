@@ -8,7 +8,7 @@ import "github.com/wmnsk/go-m3ua/messages"
 
 // XXX - implement!
 func (c *Conn) handleError(e *messages.Error) error {
-	switch c.state {
+	switch c.State() {
 	case StateSCTPCDI, StateSCTPRI:
 		return NewErrUnexpectedMessage(e)
 	}
@@ -18,7 +18,7 @@ func (c *Conn) handleError(e *messages.Error) error {
 
 // XXX - implement!
 func (c *Conn) handleNotify(e *messages.Notify) error {
-	switch c.state {
+	switch c.State() {
 	case StateSCTPCDI, StateSCTPRI:
 		return NewErrUnexpectedMessage(e)
 	}

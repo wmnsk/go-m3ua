@@ -43,7 +43,7 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 // Other signals are automatically handled background in another goroutine.
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	conn := &Conn{
-		mu:          new(sync.Mutex),
+		muState:     new(sync.RWMutex),
 		mode:        modeServer,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),

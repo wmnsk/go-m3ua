@@ -16,7 +16,7 @@ func (c *Conn) initiateASPSM() error {
 	return nil
 }
 func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
-	if c.state != StateAspDown {
+	if c.State() != StateAspDown {
 		return NewErrUnexpectedMessage(aspUp)
 
 	}
@@ -37,7 +37,7 @@ func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
 }
 
 func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
-	if c.state != StateAspDown {
+	if c.State() != StateAspDown {
 		return NewErrUnexpectedMessage(aspUpAck)
 	}
 	if c.sctpInfo.Stream != 0 {
@@ -48,7 +48,7 @@ func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
 }
 
 func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
-	switch c.state {
+	switch c.State() {
 	case StateAspInactive, StateAspActive:
 		return NewErrUnexpectedMessage(aspDown)
 	}
@@ -66,7 +66,7 @@ func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
 }
 
 func (c *Conn) handleAspDownAck(aspDownAck *messages.AspDownAck) error {
-	switch c.state {
+	switch c.State() {
 	case StateAspInactive, StateAspActive:
 		return NewErrUnexpectedMessage(aspDownAck)
 	}

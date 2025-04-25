@@ -24,8 +24,8 @@ const (
 
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
-	// mu is to Lock when updating state
-	mu *sync.Mutex
+	// muState is to Lock when updating state
+	muState *sync.RWMutex
 	// mode represents the endpoint works as client or server
 	mode mode
 	// state is to see the current state
@@ -59,10 +59,7 @@ var netMap = map[string]string{
 // Read reads data from the connection.
 func (c *Conn) Read(b []byte) (n int, err error) {
 	err = func() error {
-		c.mu.Lock()
-		defer c.mu.Unlock()
-
-		if c.state != StateAspActive {
+		if c.State() != StateAspActive {
 			return ErrNotEstablished
 		}
 		return nil
@@ -88,7 +85,7 @@ func (c *Conn) Write(b []byte) (n int, err error) {
 
 // WriteToStream writes data to the connection and specific stream
 func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
-	if c.state != StateAspActive {
+	if c.State() != StateAspActive {
 		return 0, ErrNotEstablished
 	}
 	d, err := messages.NewData(
@@ -137,8 +134,8 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 
 // Close closes the connection.
 func (c *Conn) Close() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.muState.Lock()
+	defer c.muState.Unlock()
 
 	if c.state == StateAspDown {
 		return c.sctpConn.Close()
@@ -178,5 +175,7 @@ func (c *Conn) SetWriteDeadline(t time.Time) error {
 
 // State returns current state of Conn.
 func (c *Conn) State() State {
+	c.muState.RLock()
+	defer c.muState.RUnlock()
 	return c.state
 }
