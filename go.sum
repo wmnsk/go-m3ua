@@ -1,6 +1,6 @@
-github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
-github.com/google/go-cmp v0.5.9/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/ishidawataru/sctp v0.0.0-20210707070123-9a39160e9062 h1:G1+wBT0dwjIrBdLy0MIG0i+E4CQxEnedHXdauJEIH6g=
-github.com/ishidawataru/sctp v0.0.0-20210707070123-9a39160e9062/go.mod h1:co9pwDoBCm1kGxawmb4sPq0cSIOOWNPT4KnHotMP1Zg=
+github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
+github.com/google/go-cmp v0.7.0/go.mod h1:pXiqmnSA92OHEEa9HXL2W4E7lf9JzCmGVUdgjX3N/iU=
+github.com/ishidawataru/sctp v0.0.0-20250425063137-c91d9fd4afaf h1:Yk0+ELKOCwbQ3ysGeTYMQYZJMb1rEj7VPTRXHqaEasM=
+github.com/ishidawataru/sctp v0.0.0-20250425063137-c91d9fd4afaf/go.mod h1:co9pwDoBCm1kGxawmb4sPq0cSIOOWNPT4KnHotMP1Zg=
 github.com/pascaldekloe/goe v0.1.1 h1:Ah6WQ56rZONR3RW3qWa2NCZ6JAVvSpUcoLBaOmYFt9Q=
 github.com/pascaldekloe/goe v0.1.1/go.mod h1:KSyfaxQOh0HZPjDP1FL/kFtbqYqrALJTaMafFUIccqU=
