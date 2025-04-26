@@ -80,6 +80,26 @@ func (c *Conn) Read(b []byte) (n int, err error) {
 
 }
 
+// ReadPD reads the next ProtocolDataPayload from the connection.
+func (c *Conn) ReadPD() (pd *params.ProtocolDataPayload, err error) {
+	err = func() error {
+		if c.State() != StateAspActive {
+			return ErrNotEstablished
+		}
+		return nil
+	}()
+	if err != nil {
+		return nil, err
+	}
+
+	pd, ok := <-c.dataChan
+	if !ok {
+		return nil, ErrNotEstablished
+	}
+
+	return pd, nil
+}
+
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
 	return c.WriteToStream(b, c.StreamID())
@@ -96,6 +116,39 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 			c.cfg.ServiceIndicator, c.cfg.NetworkIndicator,
 			c.cfg.MessagePriority, c.cfg.SignalingLinkSelection, b,
 		), c.cfg.CorrelationID,
+	).MarshalBinary()
+	if err != nil {
+		return 0, err
+	}
+
+	c.muSctpInfo.Lock()
+	defer c.muSctpInfo.Unlock()
+	info := c.sctpInfo
+	info.Stream = streamID
+	n, err = c.sctpConn.SCTPWrite(d, info)
+	if err != nil {
+		return 0, err
+	}
+
+	n += len(d)
+	return n, nil
+}
+
+// WritePD writes data with a specific mtp3 protocol data to the connection.
+func (c *Conn) WritePD(protocolData *params.Param) (n int, err error) {
+	return c.WritePDToStream(protocolData, c.StreamID())
+}
+
+// WritePDToStream writes data with a specific mtp3 protocol data to the connection and specific stream
+func (c *Conn) WritePDToStream(protocolData *params.Param, streamID uint16) (n int, err error) {
+	if c.State() != StateAspActive {
+		return 0, ErrNotEstablished
+	}
+	d, err := messages.NewData(
+		c.cfg.NetworkAppearance, // cannot be changed on an active connection
+		c.cfg.RoutingContexts,   // cannot be changed on an active connection
+		protocolData,            // custom mtp3 protocol data OPC, DPC, SI, NI, MP, and SLS, flexible on active connections
+		c.cfg.CorrelationID,
 	).MarshalBinary()
 	if err != nil {
 		return 0, err
