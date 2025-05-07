@@ -30,11 +30,6 @@ func (c *Conn) handleData(ctx context.Context, data *messages.Data) {
 		return
 	}
 
-	if c.cfg.OriginatingPointCode != pd.DestinationPointCode {
-		c.errChan <- NewErrUnexpectedMessage(data)
-		return
-	}
-
 	select {
 	case c.dataChan <- pd:
 		return
