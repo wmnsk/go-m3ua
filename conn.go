@@ -26,8 +26,6 @@ const (
 type Conn struct {
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
-	// muSctpInfo is to Lock when updating sctpInfo
-	muSctpInfo *sync.RWMutex
 	// mode represents the endpoint works as client or server
 	mode mode
 	// state is to see the current state
@@ -121,11 +119,10 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 		return 0, err
 	}
 
-	c.muSctpInfo.Lock()
-	defer c.muSctpInfo.Unlock()
-	info := c.sctpInfo
+	// taken by value to avoid race condition on the stream id
+	info := *c.sctpInfo
 	info.Stream = streamID
-	n, err = c.sctpConn.SCTPWrite(d, info)
+	n, err = c.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
 		return 0, err
 	}
@@ -154,11 +151,10 @@ func (c *Conn) WritePDToStream(protocolData *params.Param, streamID uint16) (n i
 		return 0, err
 	}
 
-	c.muSctpInfo.Lock()
-	defer c.muSctpInfo.Unlock()
-	info := c.sctpInfo
+	// taken by value to avoid race condition on the stream id
+	info := *c.sctpInfo
 	info.Stream = streamID
-	n, err = c.sctpConn.SCTPWrite(d, info)
+	n, err = c.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
 		return 0, err
 	}
@@ -175,14 +171,13 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 		return 0, fmt.Errorf("failed to create %T: %w", m3, err)
 	}
 
-	c.muSctpInfo.Lock()
-	defer c.muSctpInfo.Unlock()
-	sctpInfo := c.sctpInfo
+	// taken by value to avoid race condition on the stream id
+	sctpInfo := *c.sctpInfo
 	if m3.MessageClass() != messages.MsgClassTransfer {
 		sctpInfo.Stream = 0
 	}
 
-	nn, err := c.sctpConn.SCTPWrite(buf, sctpInfo)
+	nn, err := c.sctpConn.SCTPWrite(buf, &sctpInfo)
 	if err != nil {
 		return 0, fmt.Errorf("failed to write M3UA: %w", err)
 	}
@@ -241,7 +236,5 @@ func (c *Conn) State() State {
 
 // StreamID returns sctpInfo.Stream of Conn.
 func (c *Conn) StreamID() uint16 {
-	c.muSctpInfo.RLock()
-	defer c.muSctpInfo.RUnlock()
 	return c.sctpInfo.Stream
 }
