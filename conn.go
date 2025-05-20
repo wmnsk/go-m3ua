@@ -26,8 +26,8 @@ const (
 
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
-	// MaxMessageStreamID is the sctp stream ID used, must not be zero
-	MaxMessageStreamID uint16
+	// maxMessageStreamID is the maximum negotiated sctp stream ID used, must not be zero
+	maxMessageStreamID uint16
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
 	// mode represents the endpoint works as client or server
@@ -104,7 +104,7 @@ func (c *Conn) ReadPD() (pd *params.ProtocolDataPayload, err error) {
 
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	stream := RandomUint16(c.MaxMessageStreamID) // choose a random stream number from 1 to a certain maximum
+	stream := RandomUint16(c.maxMessageStreamID) // choose a random stream number from 1 to a certain maximum
 
 	return c.WriteToStream(b, stream)
 }
@@ -130,7 +130,7 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	info.Stream = streamID
 	n, err = c.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
-		log.Printf("go-m3ua: error writing on sctp connection, stream id: %v, max negotiated stream id: %v, error : %v", streamID, c.MaxMessageStreamID, err)
+		log.Printf("go-m3ua: error writing on sctp connection, stream id: %v, max negotiated stream id: %v, error : %v", streamID, c.maxMessageStreamID, err)
 		return 0, err
 	}
 
@@ -140,7 +140,7 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 
 // WritePD writes data with a specific mtp3 protocol data to the connection.
 func (c *Conn) WritePD(protocolData *params.Param) (n int, err error) {
-	stream := RandomUint16(c.MaxMessageStreamID) // choose a random stream number from 1 to a certain maximum
+	stream := RandomUint16(c.maxMessageStreamID) // choose a random stream number from 1 to a certain maximum
 
 	return c.WritePDToStream(protocolData, stream)
 }
@@ -246,6 +246,10 @@ func (c *Conn) State() State {
 // StreamID returns sctpInfo.Stream of Conn.
 func (c *Conn) StreamID() uint16 {
 	return c.sctpInfo.Stream
+}
+
+func (c *Conn) MaxMessageStreamID() uint16 {
+	return c.maxMessageStreamID
 }
 
 // RandomUint16 generates a random uint16 from 1 to max (inclusive)

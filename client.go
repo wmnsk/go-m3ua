@@ -48,7 +48,7 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	if err != nil {
 		log.Printf("go-m3ua: failed to retrive sctpConnection status for Dial: %v", err)
 	} else {
-		conn.MaxMessageStreamID = r.Ostreams - 1 // the maximum allowed stream value for normal messages must vary from 1 to max, and for a management message it is already set to 0
+		conn.maxMessageStreamID = r.Ostreams - 1 // the maximum allowed stream value for normal messages must vary from 1 to max, and for a management message it is already set to 0
 	}
 
 	go func() {
