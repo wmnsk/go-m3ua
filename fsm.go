@@ -25,6 +25,18 @@ const (
 	StateSCTPRI
 )
 
+var statuses = map[State]string{
+	StateAspDown:     "AspDown",
+	StateAspInactive: "AspInactive",
+	StateAspActive:   "AspActive",
+	StateSCTPCDI:     "SCTPCDI",
+	StateSCTPRI:      "SCTPRI",
+}
+
+func (s State) String() string {
+	return statuses[s]
+}
+
 func (c *Conn) handleStateUpdate(current State) error {
 	c.muState.Lock()
 	defer c.muState.Unlock()

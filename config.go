@@ -25,7 +25,7 @@ func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo
 	}
 }
 
-// Config is a configration that defines a M3UA server.
+// Config is a configuration that defines a M3UA server.
 type Config struct {
 	*HeartbeatInfo
 	AspIdentifier          *params.Param

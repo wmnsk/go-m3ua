@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net"
 	"sync"
 	"time"
@@ -64,6 +65,14 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	conn.sctpConn, ok = c.(*sctp.SCTPConn)
 	if !ok {
 		return nil, errors.New("failed to assert conn")
+	}
+
+	// Get the maximum stream ID negotiated with the peer in the INIT and INIT-ACK
+	r, err := conn.sctpConn.GetStatus()
+	if err != nil {
+		log.Printf("go-m3ua: failed to retrive sctpConnection status for Dial: %v", err)
+	} else {
+		conn.MaxMessageStreamID = r.Ostreams - 1 // the maximum allowed stream value for normal messages must vary from 1 to max, and for a management message it is already set to 0
 	}
 
 	go func() {

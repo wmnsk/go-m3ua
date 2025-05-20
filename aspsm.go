@@ -17,6 +17,7 @@ func (c *Conn) initiateASPSM() error {
 }
 func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
 	if c.State() != StateAspDown {
+		defer c.Close() // Provided to handle bugs from peer STPs
 		return NewErrUnexpectedMessage(aspUp)
 
 	}
@@ -48,6 +49,7 @@ func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
 }
 
 func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
+	c.Close() // Closing the connection to close the dataChan, to avoid keeping the Read function keeping blocked on the channel.
 	switch c.State() {
 	case StateAspInactive, StateAspActive:
 		return NewErrUnexpectedMessage(aspDown)
