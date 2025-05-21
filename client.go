@@ -7,7 +7,6 @@ package m3ua
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -15,7 +14,6 @@ import (
 )
 
 // Dial establishes a M3UA connection as a client.
-//
 // After successfully establishing the connection with peer, state-changing
 // signals and heartbeats are automatically handled background in another goroutine.
 func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
@@ -40,16 +38,18 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 
 	conn.sctpConn, err = sctp.DialSCTP(n, laddr, raddr)
 	if err != nil {
+		if conn.sctpConn != nil {
+			logf("go-m3ua: issue dialing connection. closing error: %v\n", conn.sctpConn.Close())
+		}
 		return nil, err
 	}
 
-	// Get the maximum stream ID negotiated with the peer in the INIT and INIT-ACK
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
-		log.Printf("go-m3ua: failed to retrive sctpConnection status for Dial: %v", err)
-	} else {
-		conn.maxMessageStreamID = r.Ostreams - 1 // the maximum allowed stream value for normal messages must vary from 1 to max, and for a management message it is already set to 0
+		logf("go-m3ua: failed to retrive sctpConnection status for Dial: %v\n", err)
+		return nil, err
 	}
+	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
 	go func() {
 		conn.stateChan <- StateAspDown
@@ -59,10 +59,12 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
+			logf("go-m3ua: issue having established client connection. closing error: %v\n", conn.sctpConn.Close())
 			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
+		logf("go-m3ua: issue client connection timeout. closing error: %v\n", conn.sctpConn.Close())
 		return nil, ErrTimeout
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net"
 	"sync"
 	"time"
@@ -40,7 +39,7 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 }
 
 // Accept waits for and returns the next connection to the listener.
-// After successfully established the association with peer, Payload can be read with Read() func.
+// After successfully establishing the association with peer, Payload can be read with Read() func.
 // Other signals are automatically handled background in another goroutine.
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	conn := &Conn{
@@ -64,16 +63,16 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	var ok bool
 	conn.sctpConn, ok = c.(*sctp.SCTPConn)
 	if !ok {
+		logf("go-m3ua: issue asserting server connection. closing error: %v\n", c.Close())
 		return nil, errors.New("failed to assert conn")
 	}
 
-	// Get the maximum stream ID negotiated with the peer in the INIT and INIT-ACK
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
-		log.Printf("go-m3ua: failed to retrive sctpConnection status for Accept: %v", err)
-	} else {
-		conn.maxMessageStreamID = r.Ostreams - 1 // the maximum allowed stream value for normal messages must vary from 1 to max, and for a management message it is already set to 0
+		logf("go-m3ua: failed to retrive sctpConnection status for Accept: %v\n", err)
+		return nil, err
 	}
+	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
 	go func() {
 		conn.stateChan <- StateAspDown
@@ -83,10 +82,20 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
+			var closeErr error
+			if conn.sctpConn != nil {
+				closeErr = conn.sctpConn.Close()
+			}
+			logf("go-m3ua: issue having established server connection. closing error: %v\n", closeErr)
 			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
+		var closeErr error
+		if conn.sctpConn != nil {
+			closeErr = conn.sctpConn.Close()
+		}
+		logf("go-m3ua: issue server connection timeout. closing error: %v\n", closeErr)
 		return nil, ErrTimeout
 	}
 }

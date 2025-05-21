@@ -26,7 +26,7 @@ const (
 
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
-	// maxMessageStreamID is the maximum negotiated sctp stream ID used, must not be zero
+	// maxMessageStreamID is the maximum negotiated sctp stream ID used, must not be zero, must vary from 1 to maxMessageStreamID
 	maxMessageStreamID uint16
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
@@ -248,24 +248,21 @@ func (c *Conn) StreamID() uint16 {
 	return c.sctpInfo.Stream
 }
 
+// MaxMessageStreamID returns the maximum negotiated sctp stream ID
+// The streamID for sending a message must start from 1 up to maxMessageStreamID, 0 is reserved for management messages
 func (c *Conn) MaxMessageStreamID() uint16 {
 	return c.maxMessageStreamID
 }
 
 // RandomUint16 generates a random uint16 from 1 to max (inclusive)
-// If max is 1, it always returns 1
 func RandomUint16(max uint16) uint16 {
-	// Seed the random number generator
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	// If max is 1, just return 1
 	if max == 1 {
 		return 1
 	}
 
-	// Generate a random number from 0 to (max-1)
 	randomNum := uint16(r.Intn(int(max)))
 
-	// Add 1 to get a number from 1 to max
 	return randomNum + 1
 }
