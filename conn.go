@@ -6,7 +6,6 @@ package m3ua
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"net"
 	"sync"
@@ -105,7 +104,7 @@ func (c *Conn) ReadPD() (pd *params.ProtocolDataPayload, err error) {
 
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	stream := RandomUint16(c.maxMessageStreamID) // choose a random stream number from 1 to a certain maximum
+	stream := c.chooseStreamID()
 
 	return c.WriteToStream(b, stream)
 }
@@ -131,8 +130,7 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	info.Stream = streamID
 	n, err = c.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
-		log.Printf("go-m3ua: error writing on sctp connection, stream id: %v, max negotiated stream id: %v, error : %v", streamID, c.maxMessageStreamID, err)
-		return 0, err
+		return 0, fmt.Errorf("go-m3ua: error writing on sctp connection, stream id: %v, max negotiated stream id: %v, error : %w", streamID, c.maxMessageStreamID, err)
 	}
 
 	n += len(d)
@@ -141,7 +139,7 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 
 // WritePD writes data with a specific mtp3 protocol data to the connection.
 func (c *Conn) WritePD(protocolData *params.Param) (n int, err error) {
-	stream := RandomUint16(c.maxMessageStreamID) // choose a random stream number from 1 to a certain maximum
+	stream := c.chooseStreamID()
 
 	return c.WritePDToStream(protocolData, stream)
 }
@@ -255,15 +253,15 @@ func (c *Conn) MaxMessageStreamID() uint16 {
 	return c.maxMessageStreamID
 }
 
-// RandomUint16 generates a random uint16 from 1 to max (inclusive)
-func RandomUint16(max uint16) uint16 {
+// chooseStreamID generates a random uint16 from 1 to max (inclusive)
+func (c *Conn) chooseStreamID() uint16 {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	if max == 1 {
+	if c.maxMessageStreamID == 1 {
 		return 1
 	}
 
-	randomNum := uint16(r.Intn(int(max)))
+	randomNum := uint16(r.Intn(int(c.maxMessageStreamID)))
 
 	return randomNum + 1
 }
