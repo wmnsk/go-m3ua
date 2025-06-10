@@ -25,16 +25,21 @@ const (
 	StateSCTPRI
 )
 
-var statuses = map[State]string{
-	StateAspDown:     "AspDown",
-	StateAspInactive: "AspInactive",
-	StateAspActive:   "AspActive",
-	StateSCTPCDI:     "SCTPCDI",
-	StateSCTPRI:      "SCTPRI",
-}
-
 func (s State) String() string {
-	return statuses[s]
+	switch s {
+	case StateAspDown:
+		return "AspDown"
+	case StateAspInactive:
+		return "AspInactive"
+	case StateAspActive:
+		return "AspActive"
+	case StateSCTPCDI:
+		return "SCTPCDI"
+	case StateSCTPRI:
+		return "SCTPRI"
+	default:
+		return "Unknown"
+	}
 }
 
 func (c *Conn) handleStateUpdate(current State) error {
