@@ -26,7 +26,8 @@ const (
 
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
-	// maxMessageStreamID is the maximum negotiated sctp stream ID used, must not be zero, must vary from 1 to maxMessageStreamID
+	// maxMessageStreamID is the maximum negotiated sctp stream ID used,
+	// must not be zero, must vary from 1 to maxMessageStreamID
 	maxMessageStreamID uint16
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
