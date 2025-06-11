@@ -14,8 +14,7 @@ import (
 )
 
 // Dial establishes a M3UA connection as a client.
-//
-// After successfully established the connection with peer, state-changing
+// After successfully establishing the connection with peer, state-changing
 // signals and heartbeats are automatically handled background in another goroutine.
 func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
 	var err error
@@ -39,8 +38,17 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 
 	conn.sctpConn, err = sctp.DialSCTP(n, laddr, raddr)
 	if err != nil {
+		if conn.sctpConn != nil {
+			return nil, fmt.Errorf("go-m3ua: issue dialing connection. closing error: %w", conn.sctpConn.Close())
+		}
 		return nil, err
 	}
+
+	r, err := conn.sctpConn.GetStatus()
+	if err != nil {
+		return nil, fmt.Errorf("go-m3ua: failed to retrive sctpConnection status for Dial: %w", err)
+	}
+	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
 	go func() {
 		conn.stateChan <- StateAspDown
@@ -50,10 +58,10 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
-			return nil, ErrFailedToEstablish
+			return nil, fmt.Errorf("go-m3ua: issue having established client connection. error: %w, closing error: %w", ErrFailedToEstablish, conn.sctpConn.Close())
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
-		return nil, ErrTimeout
+		return nil, fmt.Errorf("go-m3ua: issue client connection timeout. error: %w, closing error: %w", ErrTimeout, conn.sctpConn.Close())
 	}
 }
