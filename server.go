@@ -62,12 +62,13 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	var ok bool
 	conn.sctpConn, ok = c.(*sctp.SCTPConn)
 	if !ok {
-		return nil, fmt.Errorf("go-m3ua: issue asserting server connection. error: %w, closing error: %w", fmt.Errorf("failed to assert conn"), c.Close())
+		c.Close()
+		return nil, fmt.Errorf("failed to assert server connection")
 	}
 
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
-		return nil, fmt.Errorf("go-m3ua: failed to retrive sctpConnection status for Accept: %w", err)
+		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
 	}
 	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
@@ -79,19 +80,13 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
-			var closeErr error
-			if conn.sctpConn != nil {
-				closeErr = conn.sctpConn.Close()
-			}
-			return nil, fmt.Errorf("go-m3ua: issue having established server connection. error: %w, closing error: %w", ErrFailedToEstablish, closeErr)
+			conn.sctpConn.Close()
+			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
-		var closeErr error
-		if conn.sctpConn != nil {
-			closeErr = conn.sctpConn.Close()
-		}
-		return nil, fmt.Errorf("go-m3ua: issue server connection timeout.  error: %w, closing error: %w", ErrTimeout, closeErr)
+		conn.sctpConn.Close()
+		return nil, ErrTimeout
 	}
 }
 

@@ -38,15 +38,12 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 
 	conn.sctpConn, err = sctp.DialSCTP(n, laddr, raddr)
 	if err != nil {
-		if conn.sctpConn != nil {
-			return nil, fmt.Errorf("go-m3ua: issue dialing connection. closing error: %w", conn.sctpConn.Close())
-		}
 		return nil, err
 	}
 
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
-		return nil, fmt.Errorf("go-m3ua: failed to retrive sctpConnection status for Dial: %w", err)
+		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
 	}
 	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
@@ -58,10 +55,12 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
-			return nil, fmt.Errorf("go-m3ua: issue having established client connection. error: %w, closing error: %w", ErrFailedToEstablish, conn.sctpConn.Close())
+			conn.sctpConn.Close()
+			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
-		return nil, fmt.Errorf("go-m3ua: issue client connection timeout. error: %w, closing error: %w", ErrTimeout, conn.sctpConn.Close())
+		conn.sctpConn.Close()
+		return nil, ErrTimeout
 	}
 }

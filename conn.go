@@ -130,7 +130,7 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	info.Stream = streamID
 	n, err = c.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
-		return 0, fmt.Errorf("go-m3ua: error writing on sctp connection, stream id: %v, max negotiated stream id: %v, error : %w", streamID, c.maxMessageStreamID, err)
+		return 0, err
 	}
 
 	n += len(d)
@@ -255,13 +255,10 @@ func (c *Conn) MaxMessageStreamID() uint16 {
 
 // chooseStreamID generates a random uint16 from 1 to max (inclusive)
 func (c *Conn) chooseStreamID() uint16 {
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
 	if c.maxMessageStreamID == 1 {
 		return 1
 	}
-
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	randomNum := uint16(r.Intn(int(c.maxMessageStreamID)))
-
 	return randomNum + 1
 }
