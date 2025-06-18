@@ -25,6 +25,23 @@ const (
 	StateSCTPRI
 )
 
+func (s State) String() string {
+	switch s {
+	case StateAspDown:
+		return "AspDown"
+	case StateAspInactive:
+		return "AspInactive"
+	case StateAspActive:
+		return "AspActive"
+	case StateSCTPCDI:
+		return "SCTPCDI"
+	case StateSCTPRI:
+		return "SCTPRI"
+	default:
+		return "Unknown"
+	}
+}
+
 func (c *Conn) handleStateUpdate(current State) error {
 	c.muState.Lock()
 	defer c.muState.Unlock()

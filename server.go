@@ -6,7 +6,6 @@ package m3ua
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net"
 	"sync"
@@ -39,7 +38,7 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 }
 
 // Accept waits for and returns the next connection to the listener.
-// After successfully established the association with peer, Payload can be read with Read() func.
+// After successfully establishing the association with peer, Payload can be read with Read() func.
 // Other signals are automatically handled background in another goroutine.
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	conn := &Conn{
@@ -63,8 +62,15 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	var ok bool
 	conn.sctpConn, ok = c.(*sctp.SCTPConn)
 	if !ok {
-		return nil, errors.New("failed to assert conn")
+		c.Close()
+		return nil, fmt.Errorf("failed to assert server connection")
 	}
+
+	r, err := conn.sctpConn.GetStatus()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
+	}
+	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
 
 	go func() {
 		conn.stateChan <- StateAspDown
@@ -74,10 +80,12 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
+			conn.sctpConn.Close()
 			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
+		conn.sctpConn.Close()
 		return nil, ErrTimeout
 	}
 }

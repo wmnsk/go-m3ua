@@ -6,6 +6,7 @@ package m3ua
 
 import (
 	"fmt"
+	"math/rand"
 	"net"
 	"sync"
 	"time"
@@ -24,6 +25,9 @@ const (
 
 // Conn represents a M3UA connection, which satisfies standard net.Conn interface.
 type Conn struct {
+	// maxMessageStreamID is the maximum negotiated sctp stream ID used,
+	// must not be zero, must vary from 1 to maxMessageStreamID
+	maxMessageStreamID uint16
 	// muState is to Lock when updating state
 	muState *sync.RWMutex
 	// mode represents the endpoint works as client or server
@@ -100,7 +104,9 @@ func (c *Conn) ReadPD() (pd *params.ProtocolDataPayload, err error) {
 
 // Write writes data to the connection.
 func (c *Conn) Write(b []byte) (n int, err error) {
-	return c.WriteToStream(b, c.StreamID())
+	stream := c.chooseStreamID()
+
+	return c.WriteToStream(b, stream)
 }
 
 // WriteToStream writes data to the connection and specific stream
@@ -133,7 +139,9 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 
 // WritePD writes data with a specific mtp3 protocol data to the connection.
 func (c *Conn) WritePD(protocolData *params.Param) (n int, err error) {
-	return c.WritePDToStream(protocolData, c.StreamID())
+	stream := c.chooseStreamID()
+
+	return c.WritePDToStream(protocolData, stream)
 }
 
 // WritePDToStream writes data with a specific mtp3 protocol data to the connection and specific stream
@@ -237,4 +245,20 @@ func (c *Conn) State() State {
 // StreamID returns sctpInfo.Stream of Conn.
 func (c *Conn) StreamID() uint16 {
 	return c.sctpInfo.Stream
+}
+
+// MaxMessageStreamID returns the maximum negotiated sctp stream ID
+// The streamID for sending a message must start from 1 up to maxMessageStreamID, 0 is reserved for management messages
+func (c *Conn) MaxMessageStreamID() uint16 {
+	return c.maxMessageStreamID
+}
+
+// chooseStreamID generates a random uint16 from 1 to max (inclusive)
+func (c *Conn) chooseStreamID() uint16 {
+	if c.maxMessageStreamID == 1 {
+		return 1
+	}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	randomNum := uint16(r.Intn(int(c.maxMessageStreamID)))
+	return randomNum + 1
 }
