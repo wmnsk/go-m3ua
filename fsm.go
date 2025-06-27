@@ -114,7 +114,7 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 
 	// Signal validations
 	if m3.Version() != 1 {
-		c.errChan <- NewErrInvalidVersion(m3.Version())
+		c.errChan <- NewInvalidVersionError(m3.Version())
 		return
 	}
 
@@ -189,7 +189,7 @@ func (c *Conn) handleSignals(ctx context.Context, m3 messages.M3UA) {
 		c.stateChan <- c.State()
 	// Others: SSNM and RKM is not implemented.
 	default:
-		c.errChan <- NewErrUnsupportedMessage(m3)
+		c.errChan <- NewUnsupportedMessageError(m3)
 		c.stateChan <- c.State()
 	}
 }

@@ -68,7 +68,7 @@ func (c *Conn) heartbeat(ctx context.Context) {
 
 func (c *Conn) handleAspActive(aspActive *messages.AspActive) error {
 	if c.State() != StateAspInactive {
-		return NewErrUnexpectedMessage(aspActive)
+		return NewUnexpectedMessageError(aspActive)
 	}
 
 	if _, err := c.WriteSignal(
@@ -82,7 +82,7 @@ func (c *Conn) handleAspActive(aspActive *messages.AspActive) error {
 
 func (c *Conn) handleAspActiveAck(aspAcAck *messages.AspActiveAck) error {
 	if c.State() != StateAspInactive {
-		return NewErrUnexpectedMessage(aspAcAck)
+		return NewUnexpectedMessageError(aspAcAck)
 	}
 
 	// XXX - Add some additional validation for aspAcAck here.
@@ -92,7 +92,7 @@ func (c *Conn) handleAspActiveAck(aspAcAck *messages.AspActiveAck) error {
 
 func (c *Conn) handleAspInactive(aspInactive *messages.AspInactive) error {
 	if c.State() != StateAspActive {
-		return NewErrUnexpectedMessage(aspInactive)
+		return NewUnexpectedMessageError(aspInactive)
 	}
 
 	if _, err := c.WriteSignal(
@@ -106,7 +106,7 @@ func (c *Conn) handleAspInactive(aspInactive *messages.AspInactive) error {
 
 func (c *Conn) handleAspInactiveAck(aspAcAck *messages.AspInactiveAck) error {
 	if c.State() != StateAspActive {
-		return NewErrUnexpectedMessage(aspAcAck)
+		return NewUnexpectedMessageError(aspAcAck)
 	}
 
 	// XXX - Add some additional validation for aspAcAck here.
@@ -116,7 +116,7 @@ func (c *Conn) handleAspInactiveAck(aspAcAck *messages.AspInactiveAck) error {
 
 func (c *Conn) handleHeartbeat(beat *messages.Heartbeat) error {
 	if c.State() != StateAspActive {
-		return NewErrUnexpectedMessage(beat)
+		return NewUnexpectedMessageError(beat)
 	}
 
 	// No need to create new HeartbeatAck, as it's identical to Heartbeat except the MessageType.
@@ -129,17 +129,17 @@ func (c *Conn) handleHeartbeat(beat *messages.Heartbeat) error {
 
 func (c *Conn) handleHeartbeatAck(beatAck *messages.HeartbeatAck) error {
 	if c.State() != StateAspActive {
-		return NewErrUnexpectedMessage(beatAck)
+		return NewUnexpectedMessageError(beatAck)
 	}
 
 	myData := c.cfg.HeartbeatInfo.Data
 	dataFromPeer := beatAck.HeartbeatData.HeartbeatData()
 	if len(dataFromPeer) != len(myData) {
-		return NewErrUnexpectedMessage(beatAck)
+		return NewUnexpectedMessageError(beatAck)
 	}
 	for i, p := range dataFromPeer {
 		if p != myData[i] {
-			return NewErrUnexpectedMessage(beatAck)
+			return NewUnexpectedMessageError(beatAck)
 		}
 	}
 
