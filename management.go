@@ -10,7 +10,7 @@ import "github.com/wmnsk/go-m3ua/messages"
 func (c *Conn) handleError(e *messages.Error) error {
 	switch c.State() {
 	case StateSCTPCDI, StateSCTPRI:
-		return NewErrUnexpectedMessage(e)
+		return NewUnexpectedMessageError(e)
 	}
 
 	return nil
@@ -20,7 +20,7 @@ func (c *Conn) handleError(e *messages.Error) error {
 func (c *Conn) handleNotify(e *messages.Notify) error {
 	switch c.State() {
 	case StateSCTPCDI, StateSCTPRI:
-		return NewErrUnexpectedMessage(e)
+		return NewUnexpectedMessageError(e)
 	}
 
 	return nil

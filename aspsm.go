@@ -17,11 +17,11 @@ func (c *Conn) initiateASPSM() error {
 }
 func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
 	if c.State() != StateAspDown {
-		return NewErrUnexpectedMessage(aspUp)
+		return NewUnexpectedMessageError(aspUp)
 
 	}
 	if c.StreamID() != 0 {
-		return NewErrInvalidSCTPStreamID(c.StreamID())
+		return NewInvalidSCTPStreamIDError(c.StreamID())
 	}
 
 	if _, err := c.WriteSignal(
@@ -38,10 +38,10 @@ func (c *Conn) handleAspUp(aspUp *messages.AspUp) error {
 
 func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
 	if c.State() != StateAspDown {
-		return NewErrUnexpectedMessage(aspUpAck)
+		return NewUnexpectedMessageError(aspUpAck)
 	}
 	if c.StreamID() != 0 {
-		return NewErrInvalidSCTPStreamID(c.StreamID())
+		return NewInvalidSCTPStreamIDError(c.StreamID())
 	}
 
 	return nil
@@ -52,10 +52,10 @@ func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
 	case StateAspInactive, StateAspActive:
 		// expected, do nothing here
 	default:
-		return NewErrUnexpectedMessage(aspDown)
+		return NewUnexpectedMessageError(aspDown)
 	}
 	if c.StreamID() != 0 {
-		return NewErrInvalidSCTPStreamID(c.StreamID())
+		return NewInvalidSCTPStreamIDError(c.StreamID())
 	}
 
 	// XXX - Validate the params.
@@ -70,10 +70,10 @@ func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
 func (c *Conn) handleAspDownAck(aspDownAck *messages.AspDownAck) error {
 	switch c.State() {
 	case StateAspInactive, StateAspActive:
-		return NewErrUnexpectedMessage(aspDownAck)
+		return NewUnexpectedMessageError(aspDownAck)
 	}
 	if c.StreamID() != 0 {
-		return NewErrInvalidSCTPStreamID(c.StreamID())
+		return NewInvalidSCTPStreamIDError(c.StreamID())
 	}
 
 	return nil

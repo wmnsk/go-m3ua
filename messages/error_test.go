@@ -15,7 +15,7 @@ func TestError(t *testing.T) {
 		{
 			"has-all",
 			NewError(
-				params.NewErrorCode(params.ErrInvalidVersion),
+				params.NewErrorCode(params.InvalidVersionError),
 				params.NewRoutingContext(1),
 				params.NewNetworkAppearance(1),
 				params.NewAffectedPointCode(0x11111111, 0x22222222),

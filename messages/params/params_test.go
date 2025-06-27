@@ -55,7 +55,7 @@ func TestParams(t *testing.T) {
 		},
 		{
 			"ErrorCode",
-			NewErrorCode(ErrInvalidVersion),
+			NewErrorCode(InvalidVersionError),
 			[]byte{0x00, 0x0c, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01},
 		},
 		{

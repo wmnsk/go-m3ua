@@ -7,12 +7,12 @@ package params
 // Error Code definitions.
 const (
 	_ uint32 = iota
-	ErrInvalidVersion
+	InvalidVersionError
 	_
-	ErrUnsupportedMessageClass
-	ErrUnsupportedMessageType
+	UnsupportedMessageErrorClass
+	UnsupportedMessageErrorType
 	ErrUnsupportedTrafficModeType
-	ErrUnexpectedMessage
+	UnexpectedMessageError
 	ErrProtocolError
 	_
 	ErrInvalidStreamIdentifier

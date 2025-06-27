@@ -22,40 +22,44 @@ var (
 	ErrHeartbeatExpired    = errors.New("heartbeat timer expired")
 	ErrFailedToPeelOff     = errors.New("failed to peel off Protocol Data")
 	ErrFailedToWriteSignal = errors.New("failed to write signal")
+
+	// ErrAspIDRequired is used by an SGP in response to an ASP Up message that
+	// does not contain an ASP Identifier parameter when the SGP requires one.
+	ErrAspIDRequired = errors.New("ASP Identifier required")
 )
 
-// ErrInvalidVersion is used if a message with an unsupported version is received.
-type ErrInvalidVersion struct {
+// InvalidVersionError is used if a message with an unsupported version is received.
+type InvalidVersionError struct {
 	Ver uint8
 }
 
-// NewErrInvalidVersion creates ErrInvalidVersion.
-func NewErrInvalidVersion(ver uint8) *ErrInvalidVersion {
-	return &ErrInvalidVersion{Ver: ver}
+// NewInvalidVersionError creates InvalidVersionError.
+func NewInvalidVersionError(ver uint8) *InvalidVersionError {
+	return &InvalidVersionError{Ver: ver}
 }
 
 // Error returns error string with violating version.
-func (e *ErrInvalidVersion) Error() string {
+func (e *InvalidVersionError) Error() string {
 	return fmt.Sprintf("invalid version: %d", e.Ver)
 }
 
-// ErrUnsupportedClass is used if a message with an unexpected or
+// UnsupportedClassError is used if a message with an unexpected or
 // unsupported Message Class is received.
-type ErrUnsupportedClass struct {
+type UnsupportedClassError struct {
 	Msg messages.M3UA
 }
 
-// NewErrUnsupportedClass creates ErrUnsupportedClass
-func NewErrUnsupportedClass(msg messages.M3UA) *ErrUnsupportedClass {
-	return &ErrUnsupportedClass{Msg: msg}
+// NewUnsupportedClassError creates UnsupportedClassError
+func NewUnsupportedClassError(msg messages.M3UA) *UnsupportedClassError {
+	return &UnsupportedClassError{Msg: msg}
 }
 
 // Error returns error string with message class.
-func (e *ErrUnsupportedClass) Error() string {
+func (e *UnsupportedClassError) Error() string {
 	return fmt.Sprintf("message class unsupported. class: %s", e.Msg.MessageClassName())
 }
 
-func (e *ErrUnsupportedClass) first40Octets() []byte {
+func (e *UnsupportedClassError) first40Octets() []byte {
 	b, err := e.Msg.MarshalBinary()
 	if err != nil {
 		return nil
@@ -67,23 +71,23 @@ func (e *ErrUnsupportedClass) first40Octets() []byte {
 	return b[:40]
 }
 
-// ErrUnsupportedMessage is used if a message with an
+// UnsupportedMessageError is used if a message with an
 // unexpected or unsupported Message Type is received.
-type ErrUnsupportedMessage struct {
+type UnsupportedMessageError struct {
 	Msg messages.M3UA
 }
 
-// NewErrUnsupportedMessage creates ErrUnsupportedMessage
-func NewErrUnsupportedMessage(msg messages.M3UA) *ErrUnsupportedMessage {
-	return &ErrUnsupportedMessage{Msg: msg}
+// NewUnsupportedMessageError creates UnsupportedMessageError
+func NewUnsupportedMessageError(msg messages.M3UA) *UnsupportedMessageError {
+	return &UnsupportedMessageError{Msg: msg}
 }
 
 // Error returns error string with message class and type.
-func (e *ErrUnsupportedMessage) Error() string {
+func (e *UnsupportedMessageError) Error() string {
 	return fmt.Sprintf("message unsupported. class: %s, type: %s", e.Msg.MessageClassName(), e.Msg.MessageTypeName())
 }
 
-func (e *ErrUnsupportedMessage) first40Octets() []byte {
+func (e *UnsupportedMessageError) first40Octets() []byte {
 	b, err := e.Msg.MarshalBinary()
 	if err != nil {
 		return nil
@@ -95,81 +99,67 @@ func (e *ErrUnsupportedMessage) first40Octets() []byte {
 	return b[:40]
 }
 
-// ErrUnexpectedMessage is used if a defined and recognized message is received
+// UnexpectedMessageError is used if a defined and recognized message is received
 // that is not expected in the current state (in some cases, the ASP may optionally
 // silently discard the message and not send an Error message).
-type ErrUnexpectedMessage struct {
+type UnexpectedMessageError struct {
 	Msg messages.M3UA
 }
 
-// NewErrUnexpectedMessage creates ErrUnexpectedMessage
-func NewErrUnexpectedMessage(msg messages.M3UA) *ErrUnexpectedMessage {
-	return &ErrUnexpectedMessage{Msg: msg}
+// NewUnexpectedMessageError creates UnexpectedMessageError
+func NewUnexpectedMessageError(msg messages.M3UA) *UnexpectedMessageError {
+	return &UnexpectedMessageError{Msg: msg}
 }
 
 // Error returns error string with message class and type.
-func (e *ErrUnexpectedMessage) Error() string {
+func (e *UnexpectedMessageError) Error() string {
 	return fmt.Sprintf("unexpected message. class: %s, type: %s", e.Msg.MessageClassName(), e.Msg.MessageTypeName())
 }
 
-// ErrInvalidSCTPStreamID is used if a message is received on an unexpected SCTP stream.
-type ErrInvalidSCTPStreamID struct {
+// InvalidSCTPStreamIDError is used if a message is received on an unexpected SCTP stream.
+type InvalidSCTPStreamIDError struct {
 	ID uint16
 }
 
-// NewErrInvalidSCTPStreamID creates ErrInvalidSCTPStreamID
-func NewErrInvalidSCTPStreamID(id uint16) *ErrInvalidSCTPStreamID {
-	return &ErrInvalidSCTPStreamID{ID: id}
+// NewInvalidSCTPStreamIDError creates InvalidSCTPStreamIDError
+func NewInvalidSCTPStreamIDError(id uint16) *InvalidSCTPStreamIDError {
+	return &InvalidSCTPStreamIDError{ID: id}
 }
 
 // Error returns error string with violating stream ID.
-func (e *ErrInvalidSCTPStreamID) Error() string {
+func (e *InvalidSCTPStreamIDError) Error() string {
 	return fmt.Sprintf("invalid SCTP Stream ID: %d", e.ID)
-}
-
-// ErrAspIDRequired is used by an SGP in response to an ASP Up message that
-// does not contain an ASP Identifier parameter when the SGP requires one..
-type ErrAspIDRequired struct{}
-
-// NewErrAspIDRequired creates ErrAspIDRequired
-func NewErrAspIDRequired() *ErrAspIDRequired {
-	return &ErrAspIDRequired{}
-}
-
-// Error returns error string.
-func (e *ErrAspIDRequired) Error() string {
-	return "ASP ID required"
 }
 
 func (c *Conn) handleErrors(e error) error {
 	var res messages.M3UA
-	var errInvalidVersion *ErrInvalidVersion
-	if errors.As(e, &errInvalidVersion) {
+	var InvalidVersionError *InvalidVersionError
+	if errors.As(e, &InvalidVersionError) {
 		res = messages.NewError(
-			params.NewErrorCode(params.ErrInvalidVersion),
+			params.NewErrorCode(params.InvalidVersionError),
 			nil, nil, nil, nil,
 		)
 	}
 	//nolint:errorlint
-	if err, ok := e.(*ErrUnsupportedClass); ok {
+	if err, ok := e.(*UnsupportedClassError); ok {
 		res = messages.NewError(
-			params.NewErrorCode(params.ErrUnsupportedMessageClass),
+			params.NewErrorCode(params.UnsupportedMessageErrorClass),
 			nil, nil, nil,
 			params.NewDiagnosticInformation(err.first40Octets()),
 		)
 	}
 	//nolint:errorlint
-	if err, ok := e.(*ErrUnsupportedMessage); ok {
+	if err, ok := e.(*UnsupportedMessageError); ok {
 		res = messages.NewError(
-			params.NewErrorCode(params.ErrUnsupportedMessageType),
+			params.NewErrorCode(params.UnsupportedMessageErrorType),
 			nil, nil, nil,
 			params.NewDiagnosticInformation(err.first40Octets()),
 		)
 	}
-	var errUnexpectedMessage *ErrUnexpectedMessage
-	if errors.As(e, &errUnexpectedMessage) {
+	var UnexpectedMessageError *UnexpectedMessageError
+	if errors.As(e, &UnexpectedMessageError) {
 		res = messages.NewError(
-			params.NewErrorCode(params.ErrUnexpectedMessage),
+			params.NewErrorCode(params.UnexpectedMessageError),
 			c.cfg.RoutingContexts,
 			c.cfg.NetworkAppearance,
 			params.NewAffectedPointCode(
@@ -178,15 +168,14 @@ func (c *Conn) handleErrors(e error) error {
 			nil,
 		)
 	}
-	var errInvalidSCTPStreamID *ErrInvalidSCTPStreamID
-	if errors.As(e, &errInvalidSCTPStreamID) {
+	var InvalidSCTPStreamIDError *InvalidSCTPStreamIDError
+	if errors.As(e, &InvalidSCTPStreamIDError) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrInvalidStreamIdentifier),
 			nil, nil, nil, nil,
 		)
 	}
-	var errAspIDRequired *ErrAspIDRequired
-	if errors.As(e, &errAspIDRequired) {
+	if errors.Is(e, ErrAspIDRequired) {
 		res = messages.NewError(
 			params.NewErrorCode(params.ErrAspIdentifierRequired),
 			nil, nil, nil, nil,
