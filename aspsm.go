@@ -50,6 +50,8 @@ func (c *Conn) handleAspUpAck(aspUpAck *messages.AspUpAck) error {
 func (c *Conn) handleAspDown(aspDown *messages.AspDown) error {
 	switch c.State() {
 	case StateAspInactive, StateAspActive:
+		// expected, do nothing here
+	default:
 		return NewErrUnexpectedMessage(aspDown)
 	}
 	if c.StreamID() != 0 {
