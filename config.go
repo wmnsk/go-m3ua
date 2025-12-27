@@ -18,6 +18,23 @@ type HeartbeatInfo struct {
 	Data     []byte
 }
 
+// SctpSackInfo is a set of information for SCTP SACK timer configuration.
+//
+// SackDelay sack_delay: This parameter contains the number of milliseconds the
+// user is requesting that the delayed SACK timer be set to.  Note
+// that this value is defined in [RFC4960] to be between 200 and 500
+// milliseconds.
+//
+// SackFrequency sack_freq: This parameter contains the number of packets that must
+// be received before a SACK is sent without waiting for the delay
+// timer to expire.  The default value is 2; setting this value to 1
+// will disable the delayed SACK algorithm.
+type SctpSackInfo struct {
+	Enabled       bool
+	SackDelay     uint32
+	SackFrequency uint32
+}
+
 // NewHeartbeatInfo creates a new HeartbeatInfo.
 func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo {
 	return &HeartbeatInfo{
@@ -28,6 +45,7 @@ func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo
 // Config is a configuration that defines a M3UA server.
 type Config struct {
 	*HeartbeatInfo
+	*SctpSackInfo
 	AspIdentifier          *params.Param
 	TrafficModeType        *params.Param
 	NetworkAppearance      *params.Param
@@ -69,6 +87,25 @@ func (c *Config) EnableHeartbeat(interval, timer time.Duration) *Config {
 		interval, timer,
 		[]byte("Hi, this is a BEAT from go-m3ua. Are you alive?"),
 	)
+	return c
+}
+
+// SetSackConfig sets the SCTP SACK timer configuration.
+//
+// sackDelay is the number of milliseconds for the delayed SACK timer
+// (per RFC4960, should be between 200 and 500 ms).
+//
+// sackFrequency is the number of packets to receive before sending a SACK
+// without waiting for the delay timer. Setting to 1 disables the delayed
+// SACK algorithm.
+//
+// Note: sackDelay=0, sackFrequency=1 (disables delayed SACK)
+func (c *Config) SetSackConfig(sackDelay, sackFrequency uint32) *Config {
+	c.SctpSackInfo = &SctpSackInfo{
+		Enabled:       true,
+		SackDelay:     sackDelay,
+		SackFrequency: sackFrequency,
+	}
 	return c
 }
 

@@ -66,6 +66,16 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 		return nil, fmt.Errorf("failed to assert server connection")
 	}
 
+	if conn.cfg.SctpSackInfo != nil && conn.cfg.SctpSackInfo.Enabled {
+		err = conn.sctpConn.SetSackTimer(&sctp.SackTimer{
+			SackDelay:     conn.cfg.SctpSackInfo.SackDelay,
+			SackFrequency: conn.cfg.SctpSackInfo.SackFrequency,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to set sack timer: %w", err)
+		}
+	}
+
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)

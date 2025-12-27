@@ -41,6 +41,16 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 		return nil, err
 	}
 
+	if conn.cfg.SctpSackInfo != nil && conn.cfg.SctpSackInfo.Enabled {
+		err = conn.sctpConn.SetSackTimer(&sctp.SackTimer{
+			SackDelay:     conn.cfg.SctpSackInfo.SackDelay,
+			SackFrequency: conn.cfg.SctpSackInfo.SackFrequency,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to set sack timer: %w", err)
+		}
+	}
+
 	r, err := conn.sctpConn.GetStatus()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)

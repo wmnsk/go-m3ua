@@ -253,6 +253,23 @@ func (c *Conn) MaxMessageStreamID() uint16 {
 	return c.maxMessageStreamID
 }
 
+// SetSctpSackConfig sets the SCTP SACK timer configuration on an active connection.
+//
+// sackDelay is the number of milliseconds for the delayed SACK timer
+// (per RFC4960, should be between 200 and 500 ms).
+//
+// sackFrequency is the number of packets to receive before sending a SACK
+// without waiting for the delay timer. Setting to 1 disables the delayed
+// SACK algorithm.
+//
+// Note: sackDelay=0, sackFrequency=1 (disables delayed SACK)
+func (c *Conn) SetSctpSackConfig(sackDelay, sackFrequency uint32) error {
+	return c.sctpConn.SetSackTimer(&sctp.SackTimer{
+		SackDelay:     sackDelay,
+		SackFrequency: sackFrequency,
+	})
+}
+
 // chooseStreamID generates a random uint16 from 1 to max (inclusive)
 func (c *Conn) chooseStreamID() uint16 {
 	if c.maxMessageStreamID == 1 {
