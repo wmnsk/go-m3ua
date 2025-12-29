@@ -46,7 +46,7 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 		mode:        modeServer,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
-		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
+		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x00000003, Stream: 0},
 		cfg:         l.Config,
 	}
 

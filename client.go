@@ -23,7 +23,7 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 		mode:        modeClient,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
-		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
+		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x00000003, Stream: 0},
 		cfg:         cfg,
 	}
 
