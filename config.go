@@ -7,6 +7,7 @@ package m3ua
 import (
 	"time"
 
+	"github.com/ishidawataru/sctp"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -16,6 +17,13 @@ type HeartbeatInfo struct {
 	Interval time.Duration
 	Timer    time.Duration
 	Data     []byte
+}
+
+// NewHeartbeatInfo creates a new HeartbeatInfo.
+func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo {
+	return &HeartbeatInfo{
+		Enabled: true, Interval: interval, Timer: timer, Data: data,
+	}
 }
 
 // SctpSackInfo is a set of information for SCTP SACK timer configuration.
@@ -35,17 +43,20 @@ type SctpSackInfo struct {
 	SackFrequency uint32
 }
 
-// NewHeartbeatInfo creates a new HeartbeatInfo.
-func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo {
-	return &HeartbeatInfo{
-		Enabled: true, Interval: interval, Timer: timer, Data: data,
-	}
+// SCTPConfig holds all SCTP-related configuration parameters.
+// This separates SCTP layer configuration from M3UA layer configuration.
+type SCTPConfig struct {
+	*SctpSackInfo
+	// sctpConn is the underlying SCTP association
+	sctpConn *sctp.SCTPConn
+	// sctpInfo is SndRcvInfo in SCTP association
+	sctpInfo *sctp.SndRcvInfo
 }
 
 // Config is a configuration that defines a M3UA server.
 type Config struct {
 	*HeartbeatInfo
-	*SctpSackInfo
+	*SCTPConfig
 	AspIdentifier          *params.Param
 	TrafficModeType        *params.Param
 	NetworkAppearance      *params.Param
@@ -101,7 +112,10 @@ func (c *Config) EnableHeartbeat(interval, timer time.Duration) *Config {
 //
 // Note: sackDelay=0, sackFrequency=1 (disables delayed SACK)
 func (c *Config) SetSackConfig(sackDelay, sackFrequency uint32) *Config {
-	c.SctpSackInfo = &SctpSackInfo{
+	if c.SCTPConfig == nil {
+		c.SCTPConfig = &SCTPConfig{}
+	}
+	c.SCTPConfig.SctpSackInfo = &SctpSackInfo{
 		Enabled:       true,
 		SackDelay:     sackDelay,
 		SackFrequency: sackFrequency,

@@ -18,12 +18,17 @@ import (
 // signals and heartbeats are automatically handled background in another goroutine.
 func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
 	var err error
+
+	if cfg.SCTPConfig == nil {
+		cfg.SCTPConfig = &SCTPConfig{}
+	}
+	cfg.SCTPConfig.sctpInfo = &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0}
+
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
 		mode:        modeClient,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
-		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
 		cfg:         cfg,
 	}
 
@@ -36,22 +41,22 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 		return nil, fmt.Errorf("invalid network: %s", net)
 	}
 
-	conn.sctpConn, err = sctp.DialSCTP(n, laddr, raddr)
+	conn.cfg.SCTPConfig.sctpConn, err = sctp.DialSCTP(n, laddr, raddr)
 	if err != nil {
 		return nil, err
 	}
 
-	if conn.cfg.SctpSackInfo != nil && conn.cfg.SctpSackInfo.Enabled {
-		err = conn.sctpConn.SetSackTimer(&sctp.SackTimer{
-			SackDelay:     conn.cfg.SctpSackInfo.SackDelay,
-			SackFrequency: conn.cfg.SctpSackInfo.SackFrequency,
+	if conn.cfg.SCTPConfig.SctpSackInfo != nil && conn.cfg.SCTPConfig.SctpSackInfo.Enabled {
+		err = conn.cfg.SCTPConfig.sctpConn.SetSackTimer(&sctp.SackTimer{
+			SackDelay:     conn.cfg.SCTPConfig.SctpSackInfo.SackDelay,
+			SackFrequency: conn.cfg.SCTPConfig.SctpSackInfo.SackFrequency,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to set sack timer: %w", err)
 		}
 	}
 
-	r, err := conn.sctpConn.GetStatus()
+	r, err := conn.cfg.SCTPConfig.sctpConn.GetStatus()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
 	}
@@ -65,12 +70,12 @@ func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Con
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
-			conn.sctpConn.Close()
+			conn.cfg.SCTPConfig.sctpConn.Close()
 			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
-		conn.sctpConn.Close()
+		conn.cfg.SCTPConfig.sctpConn.Close()
 		return nil, ErrTimeout
 	}
 }

@@ -41,12 +41,17 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 // After successfully establishing the association with peer, Payload can be read with Read() func.
 // Other signals are automatically handled background in another goroutine.
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
+
+	if l.Config.SCTPConfig == nil {
+		l.Config.SCTPConfig = &SCTPConfig{}
+	}
+	l.Config.SCTPConfig.sctpInfo = &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0}
+
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
 		mode:        modeServer,
 		stateChan:   make(chan State),
 		established: make(chan struct{}),
-		sctpInfo:    &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0},
 		cfg:         l.Config,
 	}
 
@@ -60,23 +65,23 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	}
 
 	var ok bool
-	conn.sctpConn, ok = c.(*sctp.SCTPConn)
+	conn.cfg.SCTPConfig.sctpConn, ok = c.(*sctp.SCTPConn)
 	if !ok {
 		c.Close()
 		return nil, fmt.Errorf("failed to assert server connection")
 	}
 
-	if conn.cfg.SctpSackInfo != nil && conn.cfg.SctpSackInfo.Enabled {
-		err = conn.sctpConn.SetSackTimer(&sctp.SackTimer{
-			SackDelay:     conn.cfg.SctpSackInfo.SackDelay,
-			SackFrequency: conn.cfg.SctpSackInfo.SackFrequency,
+	if conn.cfg.SCTPConfig.SctpSackInfo != nil && conn.cfg.SCTPConfig.SctpSackInfo.Enabled {
+		err = conn.cfg.SCTPConfig.sctpConn.SetSackTimer(&sctp.SackTimer{
+			SackDelay:     conn.cfg.SCTPConfig.SctpSackInfo.SackDelay,
+			SackFrequency: conn.cfg.SCTPConfig.SctpSackInfo.SackFrequency,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("failed to set sack timer: %w", err)
 		}
 	}
 
-	r, err := conn.sctpConn.GetStatus()
+	r, err := conn.cfg.SCTPConfig.sctpConn.GetStatus()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
 	}
@@ -90,12 +95,12 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 	select {
 	case _, ok := <-conn.established:
 		if !ok {
-			conn.sctpConn.Close()
+			conn.cfg.SCTPConfig.sctpConn.Close()
 			return nil, ErrFailedToEstablish
 		}
 		return conn, nil
 	case <-time.After(10 * time.Second):
-		conn.sctpConn.Close()
+		conn.cfg.SCTPConfig.sctpConn.Close()
 		return nil, ErrTimeout
 	}
 }
