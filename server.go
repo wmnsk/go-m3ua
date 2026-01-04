@@ -42,11 +42,7 @@ func Listen(net string, laddr *sctp.SCTPAddr, cfg *Config) (*Listener, error) {
 // Other signals are automatically handled background in another goroutine.
 func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 
-	if l.Config.SCTPConfig == nil {
-		l.Config.SCTPConfig = &SCTPConfig{}
-	}
 	l.Config.SCTPConfig.sctpInfo = &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0}
-
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
 		mode:        modeServer,

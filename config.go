@@ -78,6 +78,7 @@ type Config struct {
 // values.
 func NewConfig(opc, dpc uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
+		SCTPConfig:             &SCTPConfig{},
 		OriginatingPointCode:   opc,
 		DestinationPointCode:   dpc,
 		ServiceIndicator:       si,
@@ -160,6 +161,7 @@ func (c *Config) SetCorrelationID(id uint32) *Config {
 func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
+		SCTPConfig:             &SCTPConfig{},
 		AspIdentifier:          params.NewAspIdentifier(aspID),
 		TrafficModeType:        params.NewTrafficModeType(tmt),
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
@@ -181,6 +183,7 @@ func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID 
 func NewServerConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
+		SCTPConfig:             &SCTPConfig{},
 		AspIdentifier:          params.NewAspIdentifier(aspID),
 		TrafficModeType:        params.NewTrafficModeType(tmt),
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
