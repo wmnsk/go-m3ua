@@ -19,7 +19,7 @@ import (
 func Dial(ctx context.Context, net string, laddr, raddr *sctp.SCTPAddr, cfg *Config) (*Conn, error) {
 	var err error
 
-	cfg.SCTPConfig.sctpInfo = &sctp.SndRcvInfo{PPID: 0x03000000, Stream: 0}
+	cfg.SCTPConfig.sctpInfo = &sctp.SndRcvInfo{PPID: 3, Stream: 0}
 	conn := &Conn{
 		muState:     new(sync.RWMutex),
 		mode:        modeClient,
