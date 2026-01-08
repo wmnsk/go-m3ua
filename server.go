@@ -73,12 +73,14 @@ func (l *Listener) Accept(ctx context.Context) (*Conn, error) {
 			SackFrequency: conn.cfg.SCTPConfig.SctpSackInfo.SackFrequency,
 		})
 		if err != nil {
+			conn.cfg.SCTPConfig.sctpConn.Close()
 			return nil, fmt.Errorf("failed to set sack timer: %w", err)
 		}
 	}
 
 	r, err := conn.cfg.SCTPConfig.sctpConn.GetStatus()
 	if err != nil {
+		conn.cfg.SCTPConfig.sctpConn.Close()
 		return nil, fmt.Errorf("failed to get sctpConn status: %w", err)
 	}
 	conn.maxMessageStreamID = r.Ostreams - 1 // removing 1 for management messages of stream ID 0
