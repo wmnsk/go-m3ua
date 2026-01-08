@@ -23,7 +23,7 @@ const (
 	modeServer
 )
 
-// Conn represents a M3UA connection, which satisfies standard net.Conn interface.
+// Conn represents a M3UA connection, which satisfies the standard net.Conn interface.
 type Conn struct {
 	// maxMessageStreamID is the maximum negotiated sctp stream ID used,
 	// must not be zero, must vary from 1 to maxMessageStreamID
@@ -40,15 +40,11 @@ type Conn struct {
 	established chan struct{}
 	// beatAckChan notifies that heartbeat gets the ack as expected
 	beatAckChan chan struct{}
-	// dataChan is to pass the ProtocolDataPayload(=payload on M3UA DATA) to user
+	// dataChan is to pass the ProtocolDataPayload(=payload on M3UA DATA) to the user
 	dataChan chan *params.ProtocolDataPayload
-	// errChan is to pass errors to goroutine that monitors status
+	// errChan is to pass errors to a goroutine that monitors status
 	errChan chan error
-	// sctpConn is the underlying SCTP association
-	sctpConn *sctp.SCTPConn
-	// sctpInfo is SndRcvInfo in SCTP association
-	sctpInfo *sctp.SndRcvInfo
-	// cfg is a configuration that is required to communicate between M3UA endpoints
+	// cfg is a configuration required to communicate between M3UA endpoints
 	cfg *Config
 	// Condition to allow heartbeat, only after the state is AspUp
 	beatAllow *sync.Cond
@@ -126,9 +122,9 @@ func (c *Conn) WriteToStream(b []byte, streamID uint16) (n int, err error) {
 	}
 
 	// taken by value to avoid race condition on the stream id
-	info := *c.sctpInfo
+	info := *c.cfg.SCTPConfig.sctpInfo
 	info.Stream = streamID
-	n, err = c.sctpConn.SCTPWrite(d, &info)
+	n, err = c.cfg.SCTPConfig.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
 		return 0, err
 	}
@@ -160,9 +156,9 @@ func (c *Conn) WritePDToStream(protocolData *params.Param, streamID uint16) (n i
 	}
 
 	// taken by value to avoid race condition on the stream id
-	info := *c.sctpInfo
+	info := *c.cfg.SCTPConfig.sctpInfo
 	info.Stream = streamID
-	n, err = c.sctpConn.SCTPWrite(d, &info)
+	n, err = c.cfg.SCTPConfig.sctpConn.SCTPWrite(d, &info)
 	if err != nil {
 		return 0, err
 	}
@@ -180,12 +176,12 @@ func (c *Conn) WriteSignal(m3 messages.M3UA) (n int, err error) {
 	}
 
 	// taken by value to avoid race condition on the stream id
-	sctpInfo := *c.sctpInfo
+	sctpInfo := *c.cfg.SCTPConfig.sctpInfo
 	if m3.MessageClass() != messages.MsgClassTransfer {
 		sctpInfo.Stream = 0
 	}
 
-	nn, err := c.sctpConn.SCTPWrite(buf, &sctpInfo)
+	nn, err := c.cfg.SCTPConfig.sctpConn.SCTPWrite(buf, &sctpInfo)
 	if err != nil {
 		return 0, fmt.Errorf("failed to write M3UA: %w", err)
 	}
@@ -200,39 +196,39 @@ func (c *Conn) Close() error {
 	defer c.muState.Unlock()
 
 	if c.state == StateAspDown {
-		return c.sctpConn.Close()
+		return c.cfg.SCTPConfig.sctpConn.Close()
 	}
 
 	close(c.established)
 	close(c.beatAckChan)
 	close(c.dataChan)
 	c.state = StateAspDown
-	return c.sctpConn.Close()
+	return c.cfg.SCTPConfig.sctpConn.Close()
 }
 
 // LocalAddr returns the local network address.
 func (c *Conn) LocalAddr() net.Addr {
-	return c.sctpConn.LocalAddr()
+	return c.cfg.SCTPConfig.sctpConn.LocalAddr()
 }
 
 // RemoteAddr returns the remote network address.
 func (c *Conn) RemoteAddr() net.Addr {
-	return c.sctpConn.RemoteAddr()
+	return c.cfg.SCTPConfig.sctpConn.RemoteAddr()
 }
 
 // SetDeadline sets the read and write deadlines associated.
 func (c *Conn) SetDeadline(t time.Time) error {
-	return c.sctpConn.SetDeadline(t)
+	return c.cfg.SCTPConfig.sctpConn.SetDeadline(t)
 }
 
 // SetReadDeadline sets the deadline for future Read calls.
 func (c *Conn) SetReadDeadline(t time.Time) error {
-	return c.sctpConn.SetReadDeadline(t)
+	return c.cfg.SCTPConfig.sctpConn.SetReadDeadline(t)
 }
 
 // SetWriteDeadline sets the deadline for future Write calls.
 func (c *Conn) SetWriteDeadline(t time.Time) error {
-	return c.sctpConn.SetWriteDeadline(t)
+	return c.cfg.SCTPConfig.sctpConn.SetWriteDeadline(t)
 }
 
 // State returns current state of Conn.
@@ -244,13 +240,30 @@ func (c *Conn) State() State {
 
 // StreamID returns sctpInfo.Stream of Conn.
 func (c *Conn) StreamID() uint16 {
-	return c.sctpInfo.Stream
+	return c.cfg.SCTPConfig.sctpInfo.Stream
 }
 
 // MaxMessageStreamID returns the maximum negotiated sctp stream ID
 // The streamID for sending a message must start from 1 up to maxMessageStreamID, 0 is reserved for management messages
 func (c *Conn) MaxMessageStreamID() uint16 {
 	return c.maxMessageStreamID
+}
+
+// SetSctpSackConfig sets the SCTP SACK timer configuration on an active connection.
+//
+// sackDelay is the number of milliseconds for the delayed SACK timer
+// (per RFC4960, should be between 200 and 500 ms).
+//
+// sackFrequency is the number of packets to receive before sending a SACK
+// without waiting for the delay timer. Setting to 1 disables the delayed
+// SACK algorithm.
+//
+// Note: sackDelay=0, sackFrequency=1 (disables delayed SACK)
+func (c *Conn) SetSctpSackConfig(sackDelay, sackFrequency uint32) error {
+	return c.cfg.SCTPConfig.sctpConn.SetSackTimer(&sctp.SackTimer{
+		SackDelay:     sackDelay,
+		SackFrequency: sackFrequency,
+	})
 }
 
 // chooseStreamID generates a random uint16 from 1 to max (inclusive)

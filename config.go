@@ -7,6 +7,7 @@ package m3ua
 import (
 	"time"
 
+	"github.com/ishidawataru/sctp"
 	"github.com/wmnsk/go-m3ua/messages/params"
 )
 
@@ -25,9 +26,37 @@ func NewHeartbeatInfo(interval, timer time.Duration, data []byte) *HeartbeatInfo
 	}
 }
 
+// SctpSackInfo is a set of information for SCTP SACK timer configuration.
+//
+// SackDelay sack_delay: This parameter contains the number of milliseconds the
+// user is requesting that the delayed SACK timer be set to.  Note
+// that this value is defined in [RFC4960] to be between 200 and 500
+// milliseconds.
+//
+// SackFrequency sack_freq: This parameter contains the number of packets that must
+// be received before a SACK is sent without waiting for the delay
+// timer to expire.  The default value is 2; setting this value to 1
+// will disable the delayed SACK algorithm.
+type SctpSackInfo struct {
+	Enabled       bool
+	SackDelay     uint32
+	SackFrequency uint32
+}
+
+// SCTPConfig holds all SCTP-related configuration parameters.
+// This separates SCTP layer configuration from M3UA layer configuration.
+type SCTPConfig struct {
+	*SctpSackInfo
+	// sctpConn is the underlying SCTP association
+	sctpConn *sctp.SCTPConn
+	// sctpInfo is SndRcvInfo in SCTP association
+	sctpInfo *sctp.SndRcvInfo
+}
+
 // Config is a configuration that defines a M3UA server.
 type Config struct {
 	*HeartbeatInfo
+	*SCTPConfig
 	AspIdentifier          *params.Param
 	TrafficModeType        *params.Param
 	NetworkAppearance      *params.Param
@@ -49,6 +78,7 @@ type Config struct {
 // values.
 func NewConfig(opc, dpc uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
+		SCTPConfig:             &SCTPConfig{},
 		OriginatingPointCode:   opc,
 		DestinationPointCode:   dpc,
 		ServiceIndicator:       si,
@@ -69,6 +99,28 @@ func (c *Config) EnableHeartbeat(interval, timer time.Duration) *Config {
 		interval, timer,
 		[]byte("Hi, this is a BEAT from go-m3ua. Are you alive?"),
 	)
+	return c
+}
+
+// SetSackConfig sets the SCTP SACK timer configuration.
+//
+// sackDelay is the number of milliseconds for the delayed SACK timer
+// (per RFC4960, should be between 200 and 500 ms).
+//
+// sackFrequency is the number of packets to receive before sending a SACK
+// without waiting for the delay timer. Setting to 1 disables the delayed
+// SACK algorithm.
+//
+// Note: sackDelay=0, sackFrequency=1 (disables delayed SACK)
+func (c *Config) SetSackConfig(sackDelay, sackFrequency uint32) *Config {
+	if c.SCTPConfig == nil {
+		c.SCTPConfig = &SCTPConfig{}
+	}
+	c.SCTPConfig.SctpSackInfo = &SctpSackInfo{
+		Enabled:       true,
+		SackDelay:     sackDelay,
+		SackFrequency: sackFrequency,
+	}
 	return c
 }
 
@@ -109,6 +161,7 @@ func (c *Config) SetCorrelationID(id uint32) *Config {
 func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
+		SCTPConfig:             &SCTPConfig{},
 		AspIdentifier:          params.NewAspIdentifier(aspID),
 		TrafficModeType:        params.NewTrafficModeType(tmt),
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),
@@ -130,6 +183,7 @@ func NewClientConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID 
 func NewServerConfig(hbInfo *HeartbeatInfo, opc, dpc, aspID, tmt, nwApr, corrID uint32, rtCtxs []uint32, si, ni, mp, sls uint8) *Config {
 	return &Config{
 		HeartbeatInfo:          hbInfo,
+		SCTPConfig:             &SCTPConfig{},
 		AspIdentifier:          params.NewAspIdentifier(aspID),
 		TrafficModeType:        params.NewTrafficModeType(tmt),
 		NetworkAppearance:      params.NewNetworkAppearance(nwApr),

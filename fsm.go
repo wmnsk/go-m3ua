@@ -226,7 +226,7 @@ func (c *Conn) monitor(ctx context.Context) {
 			}
 
 			// Read from conn to see something coming from the peer.
-			n, _, err := c.sctpConn.SCTPRead(buf)
+			n, _, err := c.cfg.SCTPConfig.sctpConn.SCTPRead(buf)
 			if err != nil {
 				c.Close()
 				return
